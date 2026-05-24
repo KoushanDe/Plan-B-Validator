@@ -1,0 +1,6 @@
+{
+  "name": "Plan B Validator",
+  "description": "Evaluate and validate your career Plan B with real-world market intelligence, scoring, and personal runway calculations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

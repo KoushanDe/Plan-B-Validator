@@ -156,6 +156,12 @@ export default function ResumeStep({
                 <p className="text-xs text-app-dim mt-1 leading-relaxed">
                   We will query live search resources, community forums, and hiring platforms to evaluate local trends, wage listings, and demand curves.
                 </p>
+                {!file && (
+                  <p className="text-xs text-app-gold mt-2 font-medium flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5" />
+                    Web research is recommended with a resume for better analysis. We do not store or sell any data.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -180,7 +186,7 @@ export default function ResumeStep({
         <div className="flex gap-2.5 bg-app-subtle border border-app-border-light text-app-dim p-4 rounded text-[10px] leading-relaxed">
           <Shield className="w-4 h-4 flex-shrink-0 text-app-gold/60" />
           <span>
-            <strong>Privacy Guarantee:</strong> Resumes are processed in memory and analyzed strictly to extract relevant experience details. Files are not written to static records or used for ad targeting.
+            <strong>Privacy Guarantee:</strong> Resumes are processed in memory and analyzed strictly to extract relevant experience details. We do not store or sell any data, and files are not written to static records or used for ad targeting.
           </span>
         </div>
       </div>

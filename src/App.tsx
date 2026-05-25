@@ -235,11 +235,11 @@ export default function App() {
     if (isSubmitting) {
       const stages: string[] = [
         "SANITIZE",
-        "RESUME_PROFILE",
+        ...(resumeFile ? ["RESUME_PROFILE"] : []),
         "RUNWAY",
         "PSYCHOLOGY",
-        "RESUME_MARKET_VALUE",
-        "RESEARCH",
+        ...(resumeFile ? ["RESUME_MARKET_VALUE"] : []),
+        ...(researchOptions.enableResearch ? ["RESEARCH"] : []),
         ...(planB.iWillQuitMyJob ? ["MOCK_REHIRE"] : []),
         "SCORING",
         "OPENAI_CORE",
@@ -422,14 +422,14 @@ export default function App() {
         }
 
         const errObj = errData.error || errData;
-        let errMsg = errObj.message || ((errObj.code === "RATE_LIMITED" || response.status === 429) ? "You have reached the maximum number of requests allowed per hour. Please wait a while before trying again." : "An upstream error occurred during analysis.");
+        let errMsg = errObj.message || ((errObj.code === "RATE_LIMITED" || response.status === 429) ? "You have reached the maximum number of requests allowed. Please wait a while before trying again." : "An upstream error occurred during analysis.");
         
         if (!errObj.message && (errObj.code === "RATE_LIMITED" || response.status === 429)) {
-          errMsg = "You have reached the maximum number of requests allowed per hour. Please wait a while before trying again.";
+          errMsg = "You have reached the maximum number of requests allowed. Please wait a while before trying again.";
         }
         // Override generic API error messages for rate limiting
         if ((typeof errMsg === "string" && errMsg.includes("API error (429)")) || response.status === 429 || errObj.code === "RATE_LIMITED") {
-          errMsg = "You have reached the maximum number of requests allowed per hour. Please wait a while before trying again.";
+          errMsg = "You have reached the maximum number of requests allowed. Please wait a while before trying again.";
         }
         
         const errCode = errObj.code || (response.status === 429 ? "RATE_LIMITED" : "INTERNAL_ERROR");
@@ -500,11 +500,11 @@ export default function App() {
   // Stage details for loader screen
   const sseStagesConfig: Array<{ stage: any; label: string }> = [
     { stage: "SANITIZE", label: "Inputs Sanitization Check" },
-    { stage: "RESUME_PROFILE", label: "Parsing Resume Qualifications" },
+    ...(resumeFile ? [{ stage: "RESUME_PROFILE", label: "Parsing Resume Qualifications" }] : []),
     { stage: "RUNWAY", label: "Financial Runway Extraction" },
     { stage: "PSYCHOLOGY", label: "Stress Psychology Profiling" },
-    { stage: "RESUME_MARKET_VALUE", label: "Resume Wage Benchmark Mapping" },
-    { stage: "RESEARCH", label: "Regional Web Pricing Research" },
+    ...(resumeFile ? [{ stage: "RESUME_MARKET_VALUE", label: "Resume Wage Benchmark Mapping" }] : []),
+    ...(researchOptions.enableResearch ? [{ stage: "RESEARCH", label: "Regional Web Pricing Research" }] : []),
     ...(planB.iWillQuitMyJob ? [{ stage: "MOCK_REHIRE", label: "Assessing Corporate Re-hire Market" }] : []),
     { stage: "SCORING", label: "Confidence Metric Allocation" },
     { stage: "OPENAI_CORE", label: "Deep Scenario Simulation (OpenAI)" },
@@ -515,7 +515,7 @@ export default function App() {
   const activeStageIndex = sseStagesConfig.findIndex((item) => item.stage === sseStage);
 
   return (
-    <div id="app-root-container" className="min-h-screen flex flex-col bg-app-base text-app-main">
+    <div id="app-root-container" className="min-h-screen flex flex-col bg-app-base text-app-main print:block">
       
       {/* Upper navigation header */}
       <header className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 py-5 border-b border-app-border bg-app-panel-glass backdrop-blur-md print:hidden">
@@ -606,7 +606,7 @@ export default function App() {
       </header>
 
       {/* Main Container core */}
-      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 md:p-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 md:p-8 print:block">
         
         {/* Dynamic Multi-Step Navigator Dots */}
         {step <= 7 && !showLanding && !isSubmitting && (

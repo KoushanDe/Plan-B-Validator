@@ -180,25 +180,25 @@ export default function ReviewStep({
               <tr className="border-b border-app-border-light">
                 <td className="p-3 w-1/3 text-app-dim font-mono uppercase tracking-wider text-[10px]">Current Profession</td>
                 <td className="p-3 font-semibold text-app-main">
-                  {profile.currentProfession || <span className="text-app-error italic">No entry (will scan from resume)</span>}
+                  {resumeFile ? <span className="text-app-dim italic font-normal">Will be parsed from resume</span> : (profile.currentProfession || <span className="text-app-error italic">No entry</span>)}
                 </td>
               </tr>
               <tr className="border-b border-app-border-light">
                 <td className="p-3 text-app-dim font-mono uppercase tracking-wider text-[10px]">Industry</td>
                 <td className="p-3 text-app-main">
-                  {profile.industry || <span className="text-app-error italic">No entry (will scan from resume)</span>}
+                  {resumeFile ? <span className="text-app-dim italic">Will be parsed from resume</span> : (profile.industry || <span className="text-app-error italic">No entry</span>)}
                 </td>
               </tr>
               <tr className="border-b border-app-border-light">
                 <td className="p-3 text-app-dim font-mono uppercase tracking-wider text-[10px]">Years of Experience</td>
                 <td className="p-3 text-app-main font-mono">
-                  {profile.yearsExperience !== undefined ? `${profile.yearsExperience} yrs` : <span className="text-app-error italic">No entry</span>}
+                  {resumeFile ? <span className="text-app-dim italic font-sans">Will be parsed from resume</span> : (profile.yearsExperience !== undefined ? `${profile.yearsExperience} yrs` : <span className="text-app-error italic font-sans">No entry</span>)}
                 </td>
               </tr>
               <tr className="border-b border-app-border-light">
                 <td className="p-3 text-app-dim font-mono uppercase tracking-wider text-[10px]">Geography (Current)</td>
                 <td className="p-3 text-app-main">
-                  {profile.country ? `${profile.city}, ${profile.country}` : <span className="text-app-error italic">No entry</span>}
+                  {resumeFile ? <span className="text-app-dim italic">Will be parsed from resume</span> : (profile.country ? `${profile.city}, ${profile.country}` : <span className="text-app-error italic">No entry</span>)}
                 </td>
               </tr>
             </tbody>

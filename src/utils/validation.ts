@@ -153,9 +153,6 @@ export function validateAnalyzeRequest(
   if (planB.iWillQuitMyJob === undefined || planB.iWillQuitMyJob === null || typeof planB.iWillQuitMyJob !== "boolean") {
     errors["planB.iWillQuitMyJob"] = "I will quit my job option must be a boolean (true/false).";
   }
-  if (planB.reversible === undefined || planB.reversible === null || typeof planB.reversible !== "boolean") {
-    errors["planB.reversible"] = "Reversible option must be a boolean (true/false).";
-  }
 
   // Plan B Cross-checks
   if (planB.expectedIncome3Months !== undefined && planB.expectedIncome6Months !== undefined && planB.expectedIncome12Months !== undefined) {

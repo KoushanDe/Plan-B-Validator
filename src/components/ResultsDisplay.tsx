@@ -25,7 +25,6 @@ import {
 
 interface ResultsDisplayProps {
   results: ValidationResults;
-  userMonthlyIncome?: number;
   onReset: () => void;
 }
 
@@ -200,7 +199,7 @@ function renderMarketValueAssessment(assessment: any) {
   return <span className="text-white/80">{String(assessment)}</span>;
 }
 
-export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: ResultsDisplayProps) {
+export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps) {
   const [activeTab, setActiveTab] = useState<"summary" | "financials" | "market" | "profile">("summary");
 
   // Custom Verdict configurations
@@ -259,41 +258,9 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
   };
 
   const handlePrint = () => {
-    try {
-      window.focus();
-      setTimeout(() => {
-        try {
-          window.print();
-        } catch (err) {
-          try {
-            document.execCommand('print', false, undefined);
-          } catch (e2) {
-            window.print();
-          }
-        }
-      }, 150);
-    } catch (e) {
-      console.warn("Direct window.print error, attempting browser standard print:", e);
-      try {
-        window.print();
-      } catch (err2) {
-        // failed safely
-      }
-    }
+    window.focus();
+    window.print();
   };
-
-  const hasUserIncome = userMonthlyIncome !== undefined && userMonthlyIncome !== null && userMonthlyIncome > 0;
-  
-  const userIncomeToUse = hasUserIncome
-    ? userMonthlyIncome!
-    : (results.opportunityCost?.monthly_corporate_baseline || 0);
-
-  const planBHorizonIncome = results.opportunityCost?.monthly_plan_b_at_horizon || results.resolvedPlanB?.expectedIncome12Months || 0;
-  
-  const userIncomeSacrifice = Math.max(0, userIncomeToUse - planBHorizonIncome);
-  const userIncomeSacrificePercent = userIncomeToUse > 0
-    ? Math.round((userIncomeSacrifice / userIncomeToUse) * 100)
-    : 0;
 
   // Safe parsing of confidence metric
   const cleanConfidence = String(results.confidence || "").trim();
@@ -335,6 +302,61 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
 
   // Currency extraction helper
   const localizedCountry = results.resolvedProfile?.country || results.profileFieldSources?.country || "india";
+  const iWillQuitMyJob = results.resolvedPlanB?.iWillQuitMyJob === true || results.planB?.iWillQuitMyJob === true;
+
+  // Dynamically compute informational data alerts / gaps
+  const computedDataGaps: string[] = [];
+  
+  // 1. Cross-border Plan B Check (e.g. India profile, Dubai Plan B)
+  const profileCountry = (results.resolvedProfile?.country || results.profileFieldSources?.country || "").trim().toLowerCase();
+  const targetCountry = (results.resolvedPlanB?.targetCountry || results.planBFieldSources?.targetCountry || "").trim().toLowerCase();
+  if (profileCountry && targetCountry && profileCountry !== targetCountry) {
+    computedDataGaps.push(
+      `Cross-border transition warning: Profile is based in "${results.resolvedProfile?.country || results.profileFieldSources?.country}", but Plan B target is "${results.resolvedPlanB?.targetCountry || results.planBFieldSources?.targetCountry}". Verify that expected milestone revenues are correctly entered in INR.`
+    );
+  }
+
+  // 2. Stated monthly income vs market corporate baseline mismatch
+  const statedIncome = Number(results.resolvedFinancials?.monthlyIncome || results.resolvedProfile?.monthlyIncome || results.profileFieldSources?.monthlyIncome || results.opportunityCost?.stated_monthly_income || 0);
+  const baselineIncome = Number(results.opportunityCost?.monthly_corporate_baseline || 0);
+  if (statedIncome > 0 && baselineIncome > 0) {
+    const ratio = Math.abs(statedIncome - baselineIncome) / baselineIncome;
+    if (ratio >= 0.30) {
+      computedDataGaps.push(
+        `Stated monthly income (${formatCurrency(statedIncome, localizedCountry)}) differs significantly (>${Math.round(ratio * 100)}%) from the regional market baseline benchmarked for your profile (${formatCurrency(baselineIncome, localizedCountry)}).`
+      );
+    }
+  }
+
+  // 3. Non-monotonic milestone roadmap check
+  const exp3m = results.resolvedPlanB?.expectedIncome3Months !== undefined ? Number(results.resolvedPlanB.expectedIncome3Months) : null;
+  const exp6m = results.resolvedPlanB?.expectedIncome6Months !== undefined ? Number(results.resolvedPlanB.expectedIncome6Months) : null;
+  const exp12m = results.resolvedPlanB?.expectedIncome12Months !== undefined ? Number(results.resolvedPlanB.expectedIncome12Months) : null;
+
+  if (exp3m !== null && exp6m !== null && exp6m < exp3m) {
+    computedDataGaps.push(
+      `Stated milestone income roadmap is non-monotonic: Projected 6-Month Earning (${formatCurrency(exp6m, localizedCountry)}) is less than 3-Month Earning (${formatCurrency(exp3m, localizedCountry)}). Typical career milestones show monotonic increases.`
+    );
+  } else if (exp6m !== null && exp12m !== null && exp12m < exp6m) {
+    computedDataGaps.push(
+      `Stated milestone income roadmap is non-monotonic: Projected 12-Month Earning (${formatCurrency(exp12m, localizedCountry)}) is less than 6-Month Earning (${formatCurrency(exp6m, localizedCountry)}). Typical career milestones show monotonic increases.`
+    );
+  }
+
+  // Combine computed gaps with results gaps
+  const displayedGaps: string[] = [];
+  if (results.dataGaps && Array.isArray(results.dataGaps)) {
+    displayedGaps.push(...results.dataGaps);
+  } else if (results.dataGaps) {
+    displayedGaps.push(String(results.dataGaps));
+  }
+  
+  // Add computed data gaps if not already included
+  computedDataGaps.forEach(g => {
+    if (!displayedGaps.some(dg => dg.toLowerCase().includes(g.toLowerCase().substring(0, 30)))) {
+      displayedGaps.push(g);
+    }
+  });
 
   return (
     <div id="results-display-wrapper" className="space-y-8 animate-fade-in print:bg-white print:text-black">
@@ -348,32 +370,29 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
           <h1 className="text-2xl font-serif text-white print:text-black mt-1">
             Transition Feasibility Report
           </h1>
-          {results.requestId && (
-            <span className="text-[9px] font-mono text-white/30 print:text-black/50 block mt-0.5">
-              ID: {results.requestId} • Computed in {results.processingMs ? (results.processingMs / 1000).toFixed(1) : "N/A"}s
-            </span>
-          )}
         </div>
         
-        <div className="flex gap-2 print:hidden">
-          <button
-            id="print-report-btn"
-            type="button"
-            onClick={handlePrint}
-            className="px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 border border-white/10 text-white/85 hover:bg-white/5 rounded-sm transition-colors cursor-pointer"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print Full Report</span>
-          </button>
-          
-          <button
-            id="restart-validator-btn"
-            type="button"
-            onClick={onReset}
-            className="px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 bg-[#d4af37] hover:bg-[#c5a12e] text-black rounded-sm transition-colors cursor-pointer font-semibold"
-          >
-            <span>Analyze Another Scenario</span>
-          </button>
+        <div className="flex flex-col items-end gap-1.5 print:hidden">
+          <div className="flex gap-2">
+            <button
+              id="print-report-btn"
+              type="button"
+              onClick={handlePrint}
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 border border-[#d4af37]/35 text-[#d4af37] bg-[#d4af37]/5 hover:bg-[#d4af37]/10 rounded-sm transition-all cursor-pointer font-semibold"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print / Save PDF</span>
+            </button>
+            
+            <button
+              id="restart-validator-btn"
+              type="button"
+              onClick={onReset}
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 bg-[#d4af37] hover:bg-[#c5a12e] text-black rounded-sm transition-colors cursor-pointer font-semibold"
+            >
+              <span>Analyze Another Scenario</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -474,7 +493,7 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
       </div>
 
       {/* STICKY TAB SELECTION (Hides entirely in print mode) */}
-      <div className="flex border-b border-white/10 overflow-x-auto gap-1 print:hidden pt-2 scrollbar-none">
+      <div className="flex border-b border-white/10 overflow-x-auto gap-1 print:hidden pt-4 pb-1 scrollbar-none">
         <button
           onClick={() => setActiveTab("summary")}
           className={`px-4 py-2 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap transition-all border-b-2 ${
@@ -639,17 +658,17 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
             <div className="bg-white/[0.02] print:bg-gray-150 p-4 rounded border border-white/5 print:border-black/5">
               <span className="text-[9px] uppercase tracking-widest text-white/40 print:text-black/50 block font-mono">Monthly Corporate Baseline</span>
               <span className="text-lg font-bold font-mono text-white print:text-black mt-1 block">
-                {formatCurrency(userIncomeToUse, localizedCountry)}
+                {formatCurrency(results.opportunityCost?.monthly_corporate_baseline, localizedCountry)}
               </span>
               <span className="text-[9px] text-[#d4af37] block mt-1 font-mono">
-                Source: {hasUserIncome ? "User Entered Income" : (results.opportunityCost?.corporate_baseline_source || "Web Research")}
+                Source: {results.opportunityCost?.corporate_baseline_source || "Web Research"}
               </span>
             </div>
 
             <div className="bg-white/[0.02] print:bg-gray-150 p-4 rounded border border-white/5 print:border-black/5">
               <span className="text-[9px] uppercase tracking-widest text-white/40 print:text-black/50 block font-mono">Plan B Revenue Horizon</span>
               <span className="text-lg font-bold font-mono text-emerald-400 print:text-emerald-700 mt-1 block">
-                {formatCurrency(planBHorizonIncome, localizedCountry)}
+                {formatCurrency(results.opportunityCost?.monthly_plan_b_at_horizon, localizedCountry)}
               </span>
               <span className="text-[9px] text-white/40 block mt-1 font-mono">
                 At projected mature phase
@@ -659,10 +678,10 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
             <div className="bg-rose-955/10 print:bg-red-50 p-4 rounded border border-rose-500/10 print:border-red-200">
               <span className="text-[9px] uppercase tracking-widest text-rose-400 block font-mono">Net Monthly Sacrifice</span>
               <span className="text-lg font-bold font-mono text-rose-400 print:text-rose-700 mt-1 block">
-                -{formatCurrency(userIncomeSacrifice, localizedCountry)}
+                -{formatCurrency(results.opportunityCost?.monthly_income_sacrifice, localizedCountry)}
               </span>
               <span className="text-[9px] text-rose-400/70 block mt-1 font-semibold font-sans">
-                ≈ {userIncomeSacrificePercent}% income reduction during launch
+                ≈ {results.opportunityCost?.income_sacrifice_percent || 0}% income reduction after ~12 months
               </span>
             </div>
           </div>
@@ -678,12 +697,22 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
                   const title = compName
                     .replace(/_/g, " ")
                     .replace(/^\w/, (c) => c.toUpperCase());
+
+                  let desc = "";
+                  if (compName === "trajectory_premium") desc = "Lost future corporate promotions during execution.";
+                  else if (compName === "income_sacrifice") desc = "Shortfall vs corporate earning line at horizon.";
+                  else if (compName === "experience_lock_in") desc = "Relevancy decay of current technical stack.";
+                  else if (compName === "engagement_adjustment") desc = "Tolerance threshold for long hours and solo work.";
+
                   return (
-                    <div key={compName} className="bg-white/[0.01] print:bg-gray-50 border border-white/5 print:border-black/5 p-3 rounded">
-                      <span className="text-[9px] font-mono uppercase text-white/40 print:text-black/50 block">{title}</span>
-                      <span className="text-sm font-bold font-mono text-white print:text-black mt-1 block">
-                        {compVal}/100
-                      </span>
+                    <div key={compName} className="bg-white/[0.01] print:bg-gray-50 border border-white/5 print:border-black/5 p-3 rounded flex flex-col justify-between">
+                      <div>
+                        <span className="text-[9px] font-mono uppercase text-[#d4af37]/80 print:text-[#c5a12e]/80 block">{title}</span>
+                        <span className="text-sm font-bold font-mono text-white print:text-black mt-0.5 block">
+                          {compVal as number}/100
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-sans text-white/40 block mt-2 leading-snug">{desc}</span>
                     </div>
                   );
                 })}
@@ -691,8 +720,73 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
             </div>
           )}
 
+          {/* Income Roadmap Validation */}
+          {results.researchContext?.income_roadmap_validation && (
+            <div className="border-t border-white/5 print:border-black/10 pt-5 mt-4 space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-emerald-400 block mb-1">
+                    Income Roadmap Validation
+                  </span>
+                  <p className="text-xs text-white/70 print:text-black/85 font-sans leading-relaxed pr-4">
+                    {results.researchContext.income_roadmap_validation.summary}
+                  </p>
+                </div>
+                <div className="bg-white/[0.02] border border-white/5 rounded px-3 py-2 text-center min-w-[90px]">
+                  <span className="text-[9px] uppercase font-mono tracking-wider text-white/40 block">Realism</span>
+                  <span className={`text-xl font-bold font-mono ${
+                    results.researchContext.income_roadmap_validation.realism_score >= 80 
+                      ? "text-emerald-400" 
+                      : results.researchContext.income_roadmap_validation.realism_score >= 50
+                      ? "text-[#d4af37]" 
+                      : "text-rose-400"
+                  }`}>
+                    {results.researchContext.income_roadmap_validation.realism_score}/100
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {[
+                  { label: "3 Mo Target", user: results.researchContext.income_roadmap_validation.user_monthly_at_3m, market: results.researchContext.income_roadmap_validation.market_monthly_at_3m },
+                  { label: "6 Mo Target", user: results.researchContext.income_roadmap_validation.user_monthly_at_6m, market: results.researchContext.income_roadmap_validation.market_monthly_at_6m },
+                  { label: "12 Mo Target", user: results.researchContext.income_roadmap_validation.user_monthly_at_12m, market: results.researchContext.income_roadmap_validation.market_monthly_at_12m },
+                ].map((item, idx) => (
+                  <div key={idx} className="bg-[#08080a] border border-white/5 print:border-black/5 print:bg-gray-50 rounded p-3 text-xs space-y-2">
+                    <span className="text-[9px] font-mono text-white/40 print:text-black/50 block font-bold uppercase">{item.label}</span>
+                    <div className="flex flex-col border-b border-white/5 pb-2 relative gap-1.5">
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[9px] text-[#d4af37] font-mono">Your Estimate:</span>
+                        <span className="font-semibold text-white print:text-black font-mono">
+                          {formatCurrency(item.user, localizedCountry)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-baseline">
+                        <span className="text-[9px] text-[#22c55e] font-mono opacity-80">Market Baseline:</span>
+                        <span className="text-[#22c55e]/90 print:text-green-700 font-mono">
+                          {formatCurrency(item.market, localizedCountry)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {results.researchContext.income_roadmap_validation.flags && results.researchContext.income_roadmap_validation.flags.length > 0 && (
+                <ul className="space-y-1.5 pt-1">
+                  {results.researchContext.income_roadmap_validation.flags.map((flag: string, i: number) => (
+                    <li key={i} className="flex gap-2 items-start text-[11px] text-amber-200/90 font-medium">
+                      <AlertOctagon className="w-3.5 h-3.5 flex-shrink-0 mt-[2px] text-amber-400/80" />
+                      <span>{flag}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
           {/* Long form Plan B ROI summary */}
-          <div className="border-t border-white/5 print:border-black/10 pt-4">
+          <div className="border-t border-white/5 print:border-black/10 pt-4 mt-6">
             <span className="text-[10px] uppercase font-mono tracking-wider text-[#d4af37] block mb-1">
               Consolidated ROI Verdict & Return Potential
             </span>
@@ -711,6 +805,128 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
         <div className="hidden print:block border-b border-black/10 pb-1 mb-4 mt-6">
           <h2 className="text-sm font-bold font-mono text-black uppercase">Diagnostics Part III: Web Search Grounding & Regional Context</h2>
         </div>
+
+        {/* ==================== CORPORATE RE-HIRE OUTLOOK ==================== */}
+        {iWillQuitMyJob && results.currentMarketConditionForHiring && results.currentMarketConditionForHiring.summary && (
+          <div className="bg-[#0f0f12] border border-[#d4af37]/30 print:border-black/10 print:bg-white rounded-lg p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-4 gap-3">
+              <div>
+                <h3 className="font-serif text-white print:text-black text-md flex items-center gap-2 font-medium">
+                  <Briefcase className="w-5 h-5 text-[#d4af37]" />
+                  <span>Corporate Re-hire Outlook (Plan B Reversibility)</span>
+                </h3>
+                <p className="text-[10px] text-white/45 uppercase tracking-widest mt-0.5 font-mono">
+                  Fallback Assessment & return-to-work difficulty score if Plan B fails
+                </p>
+              </div>
+
+              {/* overall score dial */}
+              <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded px-4 py-2 self-start sm:self-auto">
+                <div className="text-right">
+                  <span className="text-[9px] uppercase font-mono tracking-wider text-white/40 block">Overall Reentry Score</span>
+                  <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
+                    results.currentMarketConditionForHiring.overall_band?.toLowerCase() === "easy" ? "text-emerald-400" :
+                    results.currentMarketConditionForHiring.overall_band?.toLowerCase() === "moderate" ? "text-amber-400" :
+                    "text-rose-400"
+                  }`}>
+                    {results.currentMarketConditionForHiring.overall_band?.replace("_", " ")}
+                  </span>
+                </div>
+                <div className="h-10 w-[1px] bg-white/10" />
+                <div className="flex items-baseline font-mono">
+                  <span className="text-2xl font-bold text-[#d4af37]">{results.currentMarketConditionForHiring.overall_reentry_score}</span>
+                  <span className="text-[10px] text-white/30">/100</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Recommended minimum gap months & Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-2 space-y-3">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-[#d4af37] block">Market Reentry Summary</span>
+                <p className="text-xs text-white/80 print:text-black font-sans leading-relaxed">
+                  {results.currentMarketConditionForHiring.summary}
+                </p>
+                {results.currentMarketConditionForHiring.market_notes && (
+                  <p className="text-[11px] text-white/50 italic leading-relaxed font-sans mt-2">
+                    {results.currentMarketConditionForHiring.market_notes}
+                  </p>
+                )}
+              </div>
+
+              <div className="bg-white/[0.02] border border-white/5 rounded-lg p-4 flex flex-col justify-center space-y-1.5 self-stretch">
+                <span className="text-[9px] uppercase font-mono tracking-wider text-white/40 block">Recommended Strategy</span>
+                <span className="text-sm font-bold text-white font-serif leading-tight">
+                  gap Limit: ~{results.currentMarketConditionForHiring.recommended_minimum_gap_months || 0} Months
+                </span>
+                <p className="text-[10px] text-white/45 leading-relaxed font-sans">
+                  The data suggests avoiding gaps longer than this period before actively seeking corporate re-employment to minimize reentry friction.
+                </p>
+              </div>
+            </div>
+
+            {/* 4 tiles / table of reentry difficulties depending on gaps */}
+            {results.currentMarketConditionForHiring.reentry_by_gap && results.currentMarketConditionForHiring.reentry_by_gap.length > 0 && (
+              <div className="space-y-3">
+                <span className="text-[10px] uppercase font-mono tracking-widest text-[#d4af37] block">
+                  Difficulty Matrix by Employment Gap Length
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 col-span-1">
+                  {results.currentMarketConditionForHiring.reentry_by_gap.map((item: any, idx: number) => {
+                    const diffBand = (item.difficulty_band || "").toLowerCase();
+                    const isEasyOrMod = diffBand.includes("easy") || diffBand.includes("moderate");
+                    return (
+                      <div key={idx} className="bg-white/[0.015] border border-white/5 hover:border-white/10 rounded p-4 space-y-2 transition-all">
+                        <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                          <span className="text-[11px] font-mono uppercase tracking-wide text-white/90 font-bold">
+                            {item.gap_label === "12_plus_months" ? "12+ Months Gap" : `${item.gap_months} Mo Gap`}
+                          </span>
+                          <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded font-semibold whitespace-nowrap ${
+                            isEasyOrMod && !diffBand.includes("difficult") ? "bg-emerald-950/40 text-emerald-400 border border-emerald-500/20" :
+                            diffBand.includes("moderate") ? "bg-amber-950/40 text-amber-400 border border-amber-500/20" :
+                            "bg-rose-950/40 text-rose-400 border border-rose-500/20"
+                          }`}>
+                            {item.difficulty_band?.replace("_", " ")}
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between items-baseline font-mono text-xs">
+                          <span className="text-white/45 text-[10px]">Friction Index:</span>
+                          <span className="text-[#d4af37] font-bold">{item.difficulty_score}/100</span>
+                        </div>
+
+                        <div className="flex justify-between items-baseline font-mono text-xs">
+                          <span className="text-white/45 text-[10px]">Time to Offer:</span>
+                          <span className="text-white font-medium">{item.typical_weeks_to_offer_min} - {item.typical_weeks_to_offer_max} Wks</span>
+                        </div>
+
+                        {item.notes && (
+                          <p className="text-[10px] text-white/55 leading-relaxed font-sans border-t border-white/5 pt-2 mt-1">
+                            {item.notes}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Sourced consulting references */}
+            {results.currentMarketConditionForHiring.salary_sources && results.currentMarketConditionForHiring.salary_sources.length > 0 && (
+              <div className="border-t border-white/15 pt-4 space-y-2">
+                <span className="text-[9px] uppercase font-mono text-white/35 tracking-wider block">Sources Consulted for Re-entry Outlook:</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {results.currentMarketConditionForHiring.salary_sources.map((src: string, i: number) => (
+                    <span key={i} className="bg-white/[0.03] text-white/60 text-[9px] px-2 py-0.5 rounded font-mono border border-white/5">
+                      {src}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Market Sentiment & Summary */}
@@ -835,7 +1051,9 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
                   <div className="border-t border-white/5 pt-3 mt-3">
                     <span className="text-[9px] font-mono text-white/40 uppercase block">Benchmark Employers</span>
                     <p className="text-xs text-white/80 leading-relaxed mt-0.5 font-sans">
-                      {results.marketValueAssessment?.recent_employers ?? results.researchContext?.marketValueAssessment?.recent_employers}
+                      {Array.isArray(results.marketValueAssessment?.recent_employers ?? results.researchContext?.marketValueAssessment?.recent_employers) 
+                        ? (results.marketValueAssessment?.recent_employers ?? results.researchContext?.marketValueAssessment?.recent_employers).join(", ") 
+                        : (results.marketValueAssessment?.recent_employers ?? results.researchContext?.marketValueAssessment?.recent_employers)}
                     </p>
                   </div>
                 )}
@@ -972,92 +1190,40 @@ export default function ResultsDisplay({ results, userMonthlyIncome, onReset }: 
           </div>
         </div>
 
-        {/* Side-by-Side Resolution Verification Table / Map sources */}
-        <div className="bg-white/[0.01] border border-white/5 print:border-black/10 print:bg-white rounded p-5 space-y-4">
-          <div className="flex gap-2 items-center border-b border-white/5 print:border-black/10 pb-2">
-            <Layers className="w-4 h-4 text-[#d4af37]" />
-            <span className="font-serif text-sm text-white print:text-black">System Resolution Verification Engine</span>
-          </div>
+        {/* Core assumptions & data gaps lists for formula context */}
+        {((results.assumptions && results.assumptions.length > 0) || (displayedGaps && displayedGaps.length > 0)) && (
+          <div className="bg-white/[0.01] border border-white/5 print:border-black/10 print:bg-white rounded p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+              {/* Core analysis assumptions */}
+              {results.assumptions && results.assumptions.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#d4af37] block font-semibold">Underlying Formula Assumptions</span>
+                  <ul className="space-y-1.5 text-[11px] text-white/70 list-disc pl-4 leading-normal font-sans">
+                    {Array.isArray(results.assumptions) ? (
+                      results.assumptions.map((ass: string, idx: number) => (
+                        <li key={idx}>{ass}</li>
+                      ))
+                    ) : (
+                      <li>{String(results.assumptions)}</li>
+                    )}
+                  </ul>
+                </div>
+              )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-white/70">
-            {/* Resolved Profile Parameters */}
-            {results.resolvedProfile && (
-              <div className="space-y-3">
-                <span className="text-[10px] font-mono text-white/40 uppercase block">Inferred Career Dimensions</span>
-                <table className="w-full text-xs border border-white/5 print:border-black/5">
-                  <thead className="bg-white/5 print:bg-gray-100 uppercase tracking-wider text-[9px]">
-                    <tr>
-                      <th className="p-2 text-left border-b border-white/5">Property</th>
-                      <th className="p-2 text-left border-b border-white/5">Computed Profile Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(results.resolvedProfile).map(([k, v]) => (
-                      <tr key={k} className="border-b border-white/5">
-                        <td className="p-2 font-mono text-[10px] text-white/40 uppercase">{k}</td>
-                        <td className="p-2 font-mono text-white font-bold">{String(v)}</td>
-                      </tr>
+              {/* Profile gaps parsed */}
+              {displayedGaps && displayedGaps.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-white/45 block font-semibold">Unverified Parameters / Data Gaps</span>
+                  <ul className="space-y-1.5 text-[11px] text-white/70 list-disc pl-4 leading-normal font-sans font-medium text-amber-100/90">
+                    {displayedGaps.map((gap: string, idx: number) => (
+                      <li key={idx} className="leading-relaxed">{gap}</li>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Target Plan B Parameters */}
-            {results.resolvedPlanB && (
-              <div className="space-y-3">
-                <span className="text-[10px] font-mono text-white/40 uppercase block">Target Venture Directives</span>
-                <table className="w-full text-xs border border-white/5 print:border-black/5">
-                  <thead className="bg-white/5 print:bg-gray-100 uppercase tracking-wider text-[9px]">
-                    <tr>
-                      <th className="p-2 text-left border-b border-white/5">Directive</th>
-                      <th className="p-2 text-left border-b border-white/5">Target Plan Setting</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(results.resolvedPlanB).map(([k, v]) => (
-                      <tr key={k} className="border-b border-white/5">
-                        <td className="p-2 font-mono text-[10px] text-white/40 uppercase">{k}</td>
-                        <td className="p-2 font-mono text-white font-bold">
-                          {typeof v === "boolean" ? (v ? "TRUE" : "FALSE") : String(v)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
-
-
-
-          {/* Core assumptions & data gaps lists */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/5 print:border-black/10 pt-4">
-            {/* Core analysis assumptions */}
-            {results.assumptions && results.assumptions.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-[9px] font-mono uppercase tracking-widest text-[#d4af37] block">Underlying Formula Assumptions</span>
-                <ul className="space-y-1.5 text-[11px] text-white/55 list-disc pl-4 leading-normal">
-                  {results.assumptions.map((ass: string, idx: number) => (
-                    <li key={idx}>{ass}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Profile gaps parsed */}
-            {results.dataGaps && results.dataGaps.length > 0 && (
-              <div className="space-y-2">
-                <span className="text-[9px] font-mono uppercase tracking-widest text-white/40 block">Unverified Parameters / Data Gaps</span>
-                <ul className="space-y-1.5 text-[11px] text-white/55 list-disc pl-4 leading-normal">
-                  {results.dataGaps.map((gap: string, idx: number) => (
-                    <li key={idx}>{gap}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
 
 

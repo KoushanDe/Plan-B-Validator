@@ -160,18 +160,14 @@ export default function PlanBStep({ data, onChange, onNext, onPrev }: PlanBStepP
           />
         </div>
 
-        <div className={`grid grid-cols-1 ${data.iWillQuitMyJob ? "md:grid-cols-2" : ""} gap-5 pt-2`}>
+        <div className="grid grid-cols-1 gap-5 pt-2">
           {/* Quit Job Checklist */}
           <div>
             <div
               id="quit-job-card"
               onClick={() => {
                 const nextVal = !data.iWillQuitMyJob;
-                if (nextVal) {
-                  onChange({ iWillQuitMyJob: true, reversible: false });
-                } else {
-                  onChange({ iWillQuitMyJob: false, reversible: true });
-                }
+                onChange({ iWillQuitMyJob: nextVal });
               }}
               className={`p-5 rounded-lg border transition-all cursor-pointer flex gap-4 ${
                 data.iWillQuitMyJob
@@ -206,37 +202,6 @@ export default function PlanBStep({ data, onChange, onNext, onPrev }: PlanBStepP
               </div>
             )}
           </div>
-
-          {/* Reversible Checklist */}
-          {data.iWillQuitMyJob && (
-            <div
-              id="reversible-card"
-              onClick={() => handleChange("reversible", !data.reversible)}
-              className={`p-5 rounded-lg border transition-all cursor-pointer flex gap-4 self-start ${
-                data.reversible
-                  ? "bg-emerald-950/20 border-emerald-500/30 text-white"
-                  : "bg-rose-950/20 border-rose-500/30 text-white hover:bg-rose-950/30"
-              }`}
-            >
-              <div className="pt-0.5">
-                {data.reversible ? (
-                  <RefreshCw className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                ) : (
-                  <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0" />
-                )}
-              </div>
-              <div>
-                <div className="font-semibold text-sm tracking-wide text-white">
-                  {data.reversible ? "Decision is reversible" : "Decision is irreversible"}
-                </div>
-                <div className="text-xs text-white/40 mt-1 leading-relaxed">
-                  {data.reversible 
-                    ? "You can easily re-enter your current line of work if Plan B fails." 
-                    : "Click to toggle. Currently marked as irreversible or hard to return to if Plan B fails."}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="border-t border-white/10 pt-5">
@@ -261,6 +226,8 @@ export default function PlanBStep({ data, onChange, onNext, onPrev }: PlanBStepP
                 <input
                   id="timelineMonths"
                   type="number"
+                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                  onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
                   min="1"
                   max="120"
                   required
@@ -289,6 +256,8 @@ export default function PlanBStep({ data, onChange, onNext, onPrev }: PlanBStepP
                 <input
                   id="expectedIncome3Months"
                   type="number"
+                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                  onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
                   min="0"
                   required
                   value={data.expectedIncome3Months === undefined || data.expectedIncome3Months === null ? "" : data.expectedIncome3Months}
@@ -318,6 +287,8 @@ export default function PlanBStep({ data, onChange, onNext, onPrev }: PlanBStepP
                 <input
                   id="expectedIncome6Months"
                   type="number"
+                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                  onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
                   min="0"
                   required
                   value={data.expectedIncome6Months === undefined || data.expectedIncome6Months === null ? "" : data.expectedIncome6Months}
@@ -347,6 +318,8 @@ export default function PlanBStep({ data, onChange, onNext, onPrev }: PlanBStepP
                 <input
                   id="expectedIncome12Months"
                   type="number"
+                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                  onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
                   min="0"
                   required
                   value={data.expectedIncome12Months === undefined || data.expectedIncome12Months === null ? "" : data.expectedIncome12Months}

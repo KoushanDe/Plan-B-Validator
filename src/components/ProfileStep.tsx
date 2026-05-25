@@ -224,6 +224,8 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
           <input
             id="yearsExperience"
             type="number"
+            onWheel={(e) => (e.target as HTMLElement).blur()}
+            onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
             min="0"
             max="120"
             step="0.1"

@@ -205,12 +205,72 @@ export default function ReviewStep({
           </table>
         </section>
 
-        {/* Section 2: Financials & Computed Runway */}
+        {/* Section 2: Proposed Plan B */}
+        <section className="bg-white/[0.01] border border-white/5 rounded-lg overflow-hidden">
+          <div className="bg-white/[0.02] border-b border-white/5 px-4 py-3 flex items-center gap-2">
+            <PlanBLogo className="w-4 h-4" />
+            <h3 className="text-xs uppercase tracking-widest font-semibold text-white/90">Section 2: Plan B Strategy</h3>
+          </div>
+          <table className="w-full text-left text-xs border-collapse">
+            <tbody>
+              <tr className="border-b border-white/5">
+                <td className="p-3 w-1/3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Plan B Title</td>
+                <td className="p-3 font-bold text-white font-sans">{planB.title}</td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Detailed Description</td>
+                <td className="p-3 text-white/80 leading-relaxed font-sans max-w-lg truncate block" title={planB.description}>
+                  {planB.description}
+                </td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Main Motivation</td>
+                <td className="p-3 text-white/80 leading-relaxed font-sans">{planB.reason}</td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Timeline (Months)</td>
+                <td className="p-3 text-white font-mono">{planB.timelineMonths} months</td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Transition Mode</td>
+                <td className="p-3 text-white font-sans">
+                  {planB.iWillQuitMyJob ? "⚠️ Full-time Leap — Resigning from current job" : "✓ Side Hustle — Keeping current job"}
+                </td>
+              </tr>
+              <tr className="border-b border-white/5">
+                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Expected Income Steps</td>
+                <td className="p-3 text-white">
+                  <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                    <div className="bg-white/[0.02] p-2 rounded">
+                      Month 3: <strong>{formatINR(planB.expectedIncome3Months)}</strong>
+                    </div>
+                    <div className="bg-white/[0.02] p-2 rounded">
+                      Month 6: <strong>{formatINR(planB.expectedIncome6Months)}</strong>
+                    </div>
+                    <div className="bg-white/[0.02] p-2 rounded">
+                      Month 12: <strong>{formatINR(planB.expectedIncome12Months)}</strong>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {planB.targetCountry && (
+                <tr>
+                  <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Target Destination</td>
+                  <td className="p-3 text-[#d4af37]">
+                    {planB.targetCity ? `${planB.targetCity}, ` : ""}{planB.targetCountry}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Section 3: Financials & Computed Runway */}
         <section className="bg-white/[0.01] border border-white/5 rounded-lg overflow-hidden">
           <div className="bg-white/[0.02] border-b border-white/5 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Landmark className="w-4 h-4 text-[#d4af37]" />
-              <h3 className="text-xs uppercase tracking-widest font-semibold text-white/90">Section 2: Financials</h3>
+              <h3 className="text-xs uppercase tracking-widest font-semibold text-white/90">Section 3: Financials</h3>
             </div>
             <div className="text-[10px] text-[#d4af37] font-mono">
               Computed Runway: <strong>{rawRunway} Months</strong>
@@ -238,66 +298,6 @@ export default function ReviewStep({
                 <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Monthly Debt (EMIs)</td>
                 <td className="p-3 text-white font-mono">{formatINR(financials.debtObligations)}</td>
               </tr>
-            </tbody>
-          </table>
-        </section>
-
-        {/* Section 3: Proposed Plan B */}
-        <section className="bg-white/[0.01] border border-white/5 rounded-lg overflow-hidden">
-          <div className="bg-white/[0.02] border-b border-white/5 px-4 py-3 flex items-center gap-2">
-            <PlanBLogo className="w-4 h-4" />
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-white/90">Section 3: Plan B Strategy</h3>
-          </div>
-          <table className="w-full text-left text-xs border-collapse">
-            <tbody>
-              <tr className="border-b border-white/5">
-                <td className="p-3 w-1/3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Plan B Title</td>
-                <td className="p-3 font-bold text-white font-sans">{planB.title}</td>
-              </tr>
-              <tr className="border-b border-white/5">
-                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Detailed Description</td>
-                <td className="p-3 text-white/80 leading-relaxed font-sans max-w-lg truncate block" title={planB.description}>
-                  {planB.description}
-                </td>
-              </tr>
-              <tr className="border-b border-white/5">
-                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Main Motivation</td>
-                <td className="p-3 text-white/80 leading-relaxed font-sans">{planB.reason}</td>
-              </tr>
-              <tr className="border-b border-white/5">
-                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Timeline (Months)</td>
-                <td className="p-3 text-white font-mono">{planB.timelineMonths} months</td>
-              </tr>
-              <tr className="border-b border-white/5">
-                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Decision Reversibility</td>
-                <td className="p-3 text-white">
-                  {planB.reversible ? "✓ Fully Reversible — Can return to job market" : "⚠️ Irreversible — Severe exit threat of friction"}
-                </td>
-              </tr>
-              <tr className="border-b border-white/5">
-                <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Expected Income Steps</td>
-                <td className="p-3 text-white">
-                  <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
-                    <div className="bg-white/[0.02] p-2 rounded">
-                      Month 3: <strong>{formatINR(planB.expectedIncome3Months)}</strong>
-                    </div>
-                    <div className="bg-white/[0.02] p-2 rounded">
-                      Month 6: <strong>{formatINR(planB.expectedIncome6Months)}</strong>
-                    </div>
-                    <div className="bg-white/[0.02] p-2 rounded">
-                      Month 12: <strong>{formatINR(planB.expectedIncome12Months)}</strong>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              {planB.targetCountry && (
-                <tr>
-                  <td className="p-3 text-white/40 font-mono uppercase tracking-wider text-[10px]">Target Destination</td>
-                  <td className="p-3 text-[#d4af37]">
-                    {planB.targetCity ? `${planB.targetCity}, ` : ""}{planB.targetCountry}
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </section>

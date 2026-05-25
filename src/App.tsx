@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ProfileData,
   FinancialsData,
@@ -68,7 +68,6 @@ export default function App() {
     expectedIncome3Months: undefined,
     expectedIncome6Months: undefined,
     expectedIncome12Months: undefined,
-    reversible: true,
     targetCountry: "",
     targetCity: "",
   });
@@ -90,11 +89,17 @@ export default function App() {
   // Loading, Analysis and Event States
   const [validationResult, setValidationResult] = useState<ValidationResults | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [sseStage, setSseStage] = useState<SSEStage>("SANITIZE");
-  const [sseMessages, setSseMessages] = useState<Array<{ stage: SSEStage; message: string }>>([]);
+  const [sseStage, setSseStage] = useState<any>("SANITIZE");
+  const [sseMessages, setSseMessages] = useState<Array<{ stage: any; message: string }>>([]);
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<{ message: string; code?: string; requestId?: string | null } | null>(null);
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
+
+  // Advanced pipeline state/control synchronization
+  const [activeStageIdx, setActiveStageIdx] = useState<number>(0);
+  const [pendingReportResult, setPendingReportResult] = useState<any>(null);
+  const [submissionError, setSubmissionError] = useState<any>(null);
+  const activeStageRef = useRef<HTMLDivElement>(null);
 
   // Load from Drafts (localStorage Persistence)
   useEffect(() => {
@@ -170,7 +175,6 @@ export default function App() {
       expectedIncome3Months: undefined,
       expectedIncome6Months: undefined,
       expectedIncome12Months: undefined,
-      reversible: true,
       targetCountry: "",
       targetCity: "",
     });
@@ -191,61 +195,147 @@ export default function App() {
     setConfirmClear(false);
   };
 
+  const pendingReportResultRef = useRef<any>(null);
+  const submissionErrorRef = useRef<any>(null);
+  
+  useEffect(() => {
+    pendingReportResultRef.current = pendingReportResult;
+  }, [pendingReportResult]);
+  
+  useEffect(() => {
+    submissionErrorRef.current = submissionError;
+  }, [submissionError]);
+
   // Automated pipeline simulation timer during analysis submission
   useEffect(() => {
-    let timer: any;
+    let timeoutId: any;
+    
     if (isSubmitting) {
-      const stages: SSEStage[] = [
+      const stages: string[] = [
         "SANITIZE",
         "RESUME_PROFILE",
         "RUNWAY",
         "PSYCHOLOGY",
         "RESUME_MARKET_VALUE",
         "RESEARCH",
+        ...(planB.iWillQuitMyJob ? ["MOCK_REHIRE"] : []),
         "SCORING",
         "OPENAI_CORE",
-        "GEMINI_DEEP"
+        "GEMINI_DEEP",
+        "COMPLETE"
       ];
-      setSseStage("SANITIZE");
-      setSseMessages([{ stage: "SANITIZE", message: "Reviewing profile metrics and target configurations..." }]);
-      
-      let index = 0;
-      timer = setInterval(() => {
-        if (index < stages.length - 1) {
-          index++;
-          const nextStage = stages[index];
-          setSseStage(nextStage);
-          
-          let msg = "Processing step...";
-          if (nextStage === "RESUME_PROFILE") msg = "Extracting resume parameters and training landmarks...";
-          if (nextStage === "RUNWAY") msg = "Matching savings reserve boundaries against absolute cost curves...";
-          if (nextStage === "PSYCHOLOGY") msg = "Evaluating risk tolerance, routine adherence, and stress recovery scores...";
-          if (nextStage === "RESUME_MARKET_VALUE") msg = "Aligning years of experience against live country salaries...";
-          if (nextStage === "RESEARCH") msg = "Accessing live regional demand profiles and price indices...";
-          if (nextStage === "SCORING") msg = "Computing alternative opportunity costs and calibration offsets...";
-          if (nextStage === "OPENAI_CORE") msg = "Running complex career transition threat simulation engines...";
-          if (nextStage === "GEMINI_DEEP") msg = "Synthesizing full-scale feedback dossiers and strategic guidelines...";
-          
-          setSseMessages((prev) => [
-            ...prev,
-            { stage: nextStage, message: msg }
-          ]);
+
+      const runStage = (index: number) => {
+        if (index >= stages.length) return;
+
+        const currentStageName = stages[index];
+        setSseStage(currentStageName);
+        setActiveStageIdx(index);
+
+        let msg = "Processing step...";
+        if (currentStageName === "SANITIZE") msg = "Reviewing profile metrics and target configurations...";
+        if (currentStageName === "RESUME_PROFILE") msg = "Extracting resume parameters and training landmarks...";
+        if (currentStageName === "RUNWAY") msg = "Matching savings reserve boundaries against absolute cost curves...";
+        if (currentStageName === "PSYCHOLOGY") msg = "Evaluating risk tolerance, routine adherence, and stress recovery scores...";
+        if (currentStageName === "RESUME_MARKET_VALUE") msg = "Aligning years of experience against live country salaries...";
+        if (currentStageName === "RESEARCH") msg = "Accessing live regional demand profiles and price indices...";
+        if (currentStageName === "MOCK_REHIRE") msg = "Assessing corporate re-hire market and reentry complexity as a backup buffer...";
+        if (currentStageName === "SCORING") msg = "Computing alternative opportunity costs and calibration offsets...";
+        if (currentStageName === "OPENAI_CORE") msg = "Running complex career transition threat simulation engines...";
+        if (currentStageName === "GEMINI_DEEP") msg = "Synthesizing full-scale feedback dossiers and strategic guidelines...";
+        if (currentStageName === "COMPLETE") msg = "Waiting for final response payload securely...";
+
+        setSseMessages((prev) => {
+          if (prev.some((m) => m.stage === currentStageName)) return prev;
+          return [...prev, { stage: currentStageName, message: msg }];
+        });
+
+        const report = pendingReportResultRef.current;
+        const err = submissionErrorRef.current;
+
+        if (index === stages.length - 1) {
+          if (report) {
+            setValidationResult(report);
+            setStep(8);
+            setIsSubmitting(false);
+            return;
+          } else if (err) {
+            setError(err.message);
+            setErrorDetails(err);
+            setIsSubmitting(false);
+            return;
+          }
+          // If neither, poll at the COMPLETE stage until API returns
+          timeoutId = setTimeout(() => {
+            runStage(index);
+          }, 300);
+          return;
         }
-      }, 5000); // changes stage indicator every 5 seconds
+
+        // Custom non-uniform simulated processing intervals (in milliseconds)
+        let duration = 3000;
+        if (!report && !err) {
+          // Standard real-feeling variable paces
+          switch (currentStageName) {
+            case "SANITIZE": duration = 1400; break;
+            case "RESUME_PROFILE": duration = 2200; break;
+            case "RUNWAY": duration = 1800; break;
+            case "PSYCHOLOGY": duration = 2500; break;
+            case "RESUME_MARKET_VALUE": duration = 2400; break;
+            case "RESEARCH": duration = 3400; break;
+            case "MOCK_REHIRE": duration = 3000; break;
+            case "SCORING": duration = 1900; break;
+            case "OPENAI_CORE": duration = 15000; break;
+            case "GEMINI_DEEP": duration = 15000; break;
+            default: duration = 2500;
+          }
+        } else {
+          // Accelerate to display results if the compilation actually finished early
+          switch (currentStageName) {
+            case "SANITIZE": duration = 300; break;
+            case "RESUME_PROFILE": duration = 300; break;
+            case "RUNWAY": duration = 300; break;
+            case "PSYCHOLOGY": duration = 300; break;
+            case "RESUME_MARKET_VALUE": duration = 300; break;
+            case "RESEARCH": duration = 400; break;
+            case "MOCK_REHIRE": duration = 400; break;
+            case "SCORING": duration = 300; break;
+            case "OPENAI_CORE": duration = 300; break;
+            case "GEMINI_DEEP": duration = 400; break;
+            default: duration = 300;
+          }
+        }
+
+        timeoutId = setTimeout(() => {
+          runStage(index + 1);
+        }, duration);
+      };
+
+      runStage(0);
     }
+
     return () => {
-      if (timer) clearInterval(timer);
+      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [isSubmitting]);
+  }, [isSubmitting, planB.iWillQuitMyJob]);
+
+  // Autoscroll effect for pipeline stepper
+  useEffect(() => {
+    if (isSubmitting && activeStageRef.current) {
+      activeStageRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [sseStage, isSubmitting]);
 
   // Combined single submit handler conforming to the exact specification
   const handleValidateSubmit = async () => {
     setIsSubmitting(true);
     setError(null);
     setErrorDetails(null);
-    setSseMessages([]);
+    setPendingReportResult(null);
+    setSubmissionError(null);
+    setActiveStageIdx(0);
     setSseStage("SANITIZE");
-    setSseMessages([{ stage: "SANITIZE", message: "Reviewing core credentials..." }]);
+    setSseMessages([{ stage: "SANITIZE", message: "Reviewing profile metrics and target configurations..." }]);
 
     const sanitizedPayload = {
       profile: { ...profile },
@@ -310,8 +400,17 @@ export default function App() {
         }
 
         const errObj = errData.error || errData;
-        const errMsg = errObj.message || "An upstream error occurred during analysis.";
-        const errCode = errObj.code || "INTERNAL_ERROR";
+        let errMsg = errObj.message || ((errObj.code === "RATE_LIMITED" || response.status === 429) ? "You have reached the maximum number of requests allowed per hour. Please wait a while before trying again." : "An upstream error occurred during analysis.");
+        
+        if (!errObj.message && (errObj.code === "RATE_LIMITED" || response.status === 429)) {
+          errMsg = "You have reached the maximum number of requests allowed per hour. Please wait a while before trying again.";
+        }
+        // Override generic API error messages for rate limiting
+        if ((typeof errMsg === "string" && errMsg.includes("API error (429)")) || response.status === 429 || errObj.code === "RATE_LIMITED") {
+          errMsg = "You have reached the maximum number of requests allowed per hour. Please wait a while before trying again.";
+        }
+        
+        const errCode = errObj.code || (response.status === 429 ? "RATE_LIMITED" : "INTERNAL_ERROR");
         const reqId = errObj.requestId || null;
 
         setErrorDetails({
@@ -320,6 +419,11 @@ export default function App() {
           requestId: reqId
         });
         setError(errMsg);
+        setSubmissionError({
+          message: errMsg,
+          code: errCode,
+          requestId: reqId
+        });
         setIsSubmitting(false);
         return;
       }
@@ -334,10 +438,7 @@ export default function App() {
         }
 
         if (finalReport.verdict) {
-          setSseStage("COMPLETE");
-          setValidationResult(finalReport);
-          setStep(8); // Show Results Display Dashboard
-          setIsSubmitting(false);
+          setPendingReportResult(finalReport);
           return;
         }
       }
@@ -352,14 +453,19 @@ export default function App() {
         code: "INTERNAL_ERROR",
         requestId: null
       });
+      setSubmissionError({
+        message: msg,
+        code: "INTERNAL_ERROR",
+        requestId: null
+      });
       setIsSubmitting(false);
     }
   };
 
   const stepsConfig = [
     { num: 1, name: "Profile" },
-    { num: 2, name: "Financials" },
-    { num: 3, name: "Plan B" },
+    { num: 2, name: "Plan B" },
+    { num: 3, name: "Financials" },
     { num: 4, name: "Constraints" },
     { num: 5, name: "Psychology" },
     { num: 6, name: "Resume & Research" },
@@ -367,13 +473,14 @@ export default function App() {
   ];
 
   // Stage details for loader screen
-  const sseStagesConfig: Array<{ stage: SSEStage; label: string }> = [
+  const sseStagesConfig: Array<{ stage: any; label: string }> = [
     { stage: "SANITIZE", label: "Inputs Sanitization Check" },
     { stage: "RESUME_PROFILE", label: "Parsing Resume Qualifications" },
     { stage: "RUNWAY", label: "Financial Runway Extraction" },
     { stage: "PSYCHOLOGY", label: "Stress Psychology Profiling" },
     { stage: "RESUME_MARKET_VALUE", label: "Resume Wage Benchmark Mapping" },
     { stage: "RESEARCH", label: "Regional Web Pricing Research" },
+    ...(planB.iWillQuitMyJob ? [{ stage: "MOCK_REHIRE", label: "Assessing Corporate Re-hire Market" }] : []),
     { stage: "SCORING", label: "Confidence Metric Allocation" },
     { stage: "OPENAI_CORE", label: "Deep Scenario Simulation (OpenAI)" },
     { stage: "GEMINI_DEEP", label: "Deep Reasoning Valuation (Gemini)" },
@@ -403,7 +510,7 @@ export default function App() {
           </div>
         </div>
 
-        {!showLanding && (
+        {!showLanding && step !== 8 && (
           <div className="flex items-center gap-4">
             {confirmClear ? (
               <div className="flex items-center gap-2 animate-pulse bg-red-950/40 border border-red-500/30 px-3 py-1 rounded">
@@ -499,6 +606,7 @@ export default function App() {
                   return (
                     <div
                       key={item.stage}
+                      ref={isCurrent ? activeStageRef : undefined}
                       className={`flex items-center justify-between p-2 py-1.5 rounded text-xs leading-none transition-colors duration-150 ${
                         isCurrent
                           ? "bg-white/5 text-white border border-white/10 font-semibold"
@@ -583,18 +691,19 @@ export default function App() {
                 )}
 
                 {step === 2 && (
-                  <FinancialsStep
-                    data={financials}
-                    onChange={(updated) => setFinancials((prev) => ({ ...prev, ...updated }))}
+                  <PlanBStep
+                    data={planB}
+                    onChange={(updated) => setPlanB((prev) => ({ ...prev, ...updated }))}
                     onPrev={() => setStep(1)}
                     onNext={() => setStep(3)}
                   />
                 )}
 
                 {step === 3 && (
-                  <PlanBStep
-                    data={planB}
-                    onChange={(updated) => setPlanB((prev) => ({ ...prev, ...updated }))}
+                  <FinancialsStep
+                    data={financials}
+                    iWillQuitMyJob={planB.iWillQuitMyJob}
+                    onChange={(updated) => setFinancials((prev) => ({ ...prev, ...updated }))}
                     onPrev={() => setStep(2)}
                     onNext={() => setStep(4)}
                   />
@@ -650,7 +759,6 @@ export default function App() {
                 {step === 8 && validationResult && (
                   <ResultsDisplay
                     results={validationResult}
-                    userMonthlyIncome={financials.monthlyIncome}
                     onReset={() => {
                       setStep(1);
                       setShowLanding(true);

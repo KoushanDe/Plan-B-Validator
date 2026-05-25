@@ -133,6 +133,8 @@ export default function ConstraintsStep({
               <input
                 id="minimumAcceptableSalary"
                 type="number"
+                onWheel={(e) => (e.target as HTMLElement).blur()}
+                onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
                 min="0"
                 required
                 value={data.minimumAcceptableSalary === undefined || data.minimumAcceptableSalary === null ? "" : data.minimumAcceptableSalary}
@@ -158,6 +160,8 @@ export default function ConstraintsStep({
             <input
               id="acceptableMonthsWithoutIncome"
               type="number"
+              onWheel={(e) => (e.target as HTMLElement).blur()}
+              onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
               min="0"
               max="120"
               required

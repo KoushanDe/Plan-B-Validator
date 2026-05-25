@@ -6,14 +6,18 @@ import { getUserId } from "../utils/userId";
 
 interface FinancialsStepProps {
   data: FinancialsData;
+  iWillQuitMyJob: boolean;
   onChange: (data: Partial<FinancialsData>) => void;
   onNext: () => void;
   onPrev: () => void;
 }
 
-export default function FinancialsStep({ data, onChange, onNext, onPrev }: FinancialsStepProps) {
+export default function FinancialsStep({ data, iWillQuitMyJob, onChange, onNext, onPrev }: FinancialsStepProps) {
   const [liveRunway, setLiveRunway] = useState<number | null>(null);
   const [loadingRunway, setLoadingRunway] = useState<boolean>(false);
+  const [riskClassification, setRiskClassification] = useState<string | null>(null);
+  const [netBurn, setNetBurn] = useState<number | null>(null);
+  const [runwayMode, setRunwayMode] = useState<string | null>(null);
 
   // Parse standard inputs cleanly
   const handleChange = (field: keyof FinancialsData, value: number | undefined) => {
@@ -34,24 +38,35 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
     const totalOutflow = (data.monthlyExpenses || 0) + (data.debtObligations || 0);
     if (!data.liquidSavings || totalOutflow <= 0) {
       setLiveRunway(0);
+      setRiskClassification(null);
+      setNetBurn(null);
+      setRunwayMode(null);
       return;
     }
 
     const timer = setTimeout(async () => {
       setLoadingRunway(true);
       try {
+        const reqBody = {
+          liquidSavings: data.liquidSavings,
+          monthlyExpenses: data.monthlyExpenses,
+          debtObligations: data.debtObligations,
+          dependents: data.dependents,
+          ...(!iWillQuitMyJob ? {
+            sideHustle: true,
+            monthlyIncome: data.monthlyIncome || 0
+          } : {
+            sideHustle: false
+          })
+        };
+
         const response = await fetch("/api/runway/calculate", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "X-User-Id": getUserId(),
           },
-          body: JSON.stringify({
-            liquidSavings: data.liquidSavings,
-            monthlyExpenses: data.monthlyExpenses,
-            debtObligations: data.debtObligations,
-            dependents: data.dependents,
-          }),
+          body: JSON.stringify(reqBody),
         });
 
         if (response.ok) {
@@ -59,6 +74,9 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
           // API returns runwayMonths or similar
           const months = resJson.runwayMonths ?? resJson.months ?? calculateLocalRunway();
           setLiveRunway(months);
+          setRiskClassification(resJson.riskClassification || null);
+          setNetBurn(resJson.netBurn !== undefined ? resJson.netBurn : null);
+          setRunwayMode(resJson.runwayMode || null);
           onChange({ emergencyFundMonths: months });
         } else {
           setLiveRunway(calculateLocalRunway());
@@ -71,7 +89,7 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
     }, 600); // 600ms debounce
 
     return () => clearTimeout(timer);
-  }, [data.liquidSavings, data.monthlyExpenses, data.debtObligations, data.dependents]);
+  }, [data.liquidSavings, data.monthlyExpenses, data.debtObligations, data.dependents, data.monthlyIncome, iWillQuitMyJob]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +139,8 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
             <input
               id="monthlyIncome"
               type="number"
+              onWheel={(e) => (e.target as HTMLElement).blur()}
+              onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
               min="0"
               required
               value={data.monthlyIncome || ""}
@@ -150,6 +170,8 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
             <input
               id="liquidSavings"
               type="number"
+              onWheel={(e) => (e.target as HTMLElement).blur()}
+              onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
               min="0"
               required
               value={data.liquidSavings || ""}
@@ -179,6 +201,8 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
             <input
               id="monthlyExpenses"
               type="number"
+              onWheel={(e) => (e.target as HTMLElement).blur()}
+              onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
               min="0"
               required
               value={data.monthlyExpenses || ""}
@@ -204,6 +228,8 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
           <input
             id="dependents"
             type="number"
+            onWheel={(e) => (e.target as HTMLElement).blur()}
+            onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
             min="0"
             max="20"
             required
@@ -228,6 +254,8 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
             <input
               id="debtObligations"
               type="number"
+              onWheel={(e) => (e.target as HTMLElement).blur()}
+              onKeyDown={(e) => { if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault(); }}
               min="0"
               required
               value={data.debtObligations === undefined || data.debtObligations === null ? "" : data.debtObligations}
@@ -257,24 +285,61 @@ export default function FinancialsStep({ data, onChange, onNext, onPrev }: Finan
             <span>Dynamic Runway Analysis</span>
           </h4>
           <p className="text-xs text-white/40 mt-1 leading-relaxed">
-            How many months you can maintain your current standard of living with zero primary income.
+            {!iWillQuitMyJob ? (
+              <span>Calculated with side hustle mode active (including current primary income source).</span>
+            ) : (
+              <span>How many months you can maintain your current standard of living with zero primary income.</span>
+            )}
           </p>
         </div>
 
-         <div className="flex items-center gap-4 bg-white/[0.03] px-5 py-3 rounded border border-white/10 shadow-md self-start md:self-auto min-w-[180px]">
+        <div className="flex flex-col sm:flex-row items-center gap-4 bg-white/[0.03] px-5 py-3 rounded border border-white/10 shadow-md self-start md:self-auto min-w-[200px]">
           <div className="text-center w-full">
-            <div className={`text-2xl font-bold font-serif ${getRunwayColor(runwayValue)} flex justify-center items-center gap-1`}>
-              {loadingRunway ? (
-                <span className="h-6 w-6 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
-              ) : (
-                runwayValue
-              )}
-              <span className="text-xs font-normal text-white/50 italic font-sans ml-1">Months</span>
-            </div>
-            <div className={`text-[9px] uppercase tracking-[0.15em] font-bold mt-1 ${getRunwayColor(runwayValue)}`}>
+            {(netBurn !== null && netBurn <= 0 && (!iWillQuitMyJob)) ? (
+               <div className={`text-lg font-bold font-serif text-emerald-400 flex justify-center items-center gap-1 min-h-[32px]`}>
+                 Not measurable
+               </div>
+            ) : (
+              <div className={`text-2xl font-bold font-serif ${getRunwayColor(runwayValue)} flex justify-center items-center gap-1`}>
+                {loadingRunway ? (
+                  <span className="h-6 w-6 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  runwayValue > 999 ? "999+" : runwayValue
+                )}
+                <span className="text-xs font-normal text-white/50 italic font-sans ml-1">Months</span>
+              </div>
+            )}
+            <div className={`text-[9px] uppercase tracking-[0.15em] font-bold mt-1 ${(netBurn !== null && netBurn <= 0 && (!iWillQuitMyJob)) ? 'text-emerald-400' : getRunwayColor(runwayValue)}`}>
               Active cash survival
             </div>
           </div>
+
+          {(riskClassification || (netBurn !== null && runwayMode === "side_hustle_net_burn")) && (
+            <div className="border-t sm:border-t-0 sm:border-l border-white/10 pt-2 sm:pt-0 sm:pl-4 text-center sm:text-left space-y-1.5 min-w-[120px]">
+              {riskClassification && (
+                <div className="text-xs font-mono">
+                  <span className="text-white/40 block text-[9px] uppercase tracking-wider">Risk Level</span>
+                  <span className={`font-bold uppercase ${
+                    riskClassification.toLowerCase().includes("critical") || riskClassification.toLowerCase().includes("high")
+                      ? "text-rose-450"
+                      : riskClassification.toLowerCase().includes("medium")
+                      ? "text-amber-400"
+                      : "text-emerald-400"
+                  }`}>
+                    {riskClassification}
+                  </span>
+                </div>
+              )}
+              {netBurn !== null && runwayMode === "side_hustle_net_burn" && (
+                <div className="text-xs font-mono">
+                  <span className="text-white/40 block text-[9px] uppercase tracking-wider">Net Monthly Burn</span>
+                  <span className={`font-bold ${netBurn > 0 ? "text-rose-400" : "text-emerald-400"}`}>
+                    {netBurn > 0 ? formatINR(netBurn) : "Break-even / Surplus"}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

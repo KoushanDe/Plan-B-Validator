@@ -24,7 +24,6 @@ export interface PlanBData {
   expectedIncome3Months?: number;
   expectedIncome6Months?: number;
   expectedIncome12Months?: number;
-  reversible: boolean;
   targetCountry?: string;
   targetCity?: string;
 }
@@ -76,6 +75,26 @@ export interface ResearchContext {
   [key: string]: any;
 }
 
+export interface ReentryByGapItem {
+  gap_months: number;
+  gap_label: "3_months" | "6_months" | "9_months" | "12_plus_months";
+  difficulty_score: number;
+  difficulty_band: string;
+  typical_weeks_to_offer_min: number;
+  typical_weeks_to_offer_max: number;
+  notes: string;
+}
+
+export interface CurrentMarketConditionForHiring {
+  summary: string;
+  overall_reentry_score: number;
+  overall_band: "easy" | "moderate" | "difficult" | "very_difficult" | string;
+  recommended_minimum_gap_months: number;
+  reentry_by_gap?: ReentryByGapItem[];
+  salary_sources?: string[];
+  market_notes?: string;
+}
+
 export interface ValidationResults {
   verdict: Verdict;
   feasibilityScore: number;
@@ -93,6 +112,7 @@ export interface ValidationResults {
   suggestedFallbackPlan: string;
   researchContext: ResearchContext;
   marketValueAssessment?: any;
+  currentMarketConditionForHiring?: CurrentMarketConditionForHiring;
   [key: string]: any;
 }
 

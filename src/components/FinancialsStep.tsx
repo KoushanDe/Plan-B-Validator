@@ -386,7 +386,7 @@ export default function FinancialsStep({ data, iWillQuitMyJob, onChange, onNext,
           type="submit"
           className="px-6 py-2.5 bg-white hover:bg-white/90 text-black text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
         >
-          <span>Continue to Plan B</span>
+          <span>Continue to Constraints</span>
           <ArrowRight className="w-4 h-4 text-black" />
         </button>
       </div>

@@ -258,8 +258,15 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
   };
 
   const handlePrint = () => {
+    const origTitle = document.title;
+    const identifier = results?.candidate_name || results?.requestId || results?.request_id || "Report";
+    const newTitle = `Plan_B_Validator_Result_${identifier}`.replace(/\s+/g, '_');
+    document.title = newTitle;
     window.focus();
     window.print();
+    setTimeout(() => {
+      document.title = origTitle;
+    }, 1000);
   };
 
   // Safe parsing of confidence metric
@@ -631,7 +638,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
 
       {/* ==================== TAB 2: TRANSITION FINANCIALS & ROI DEEP DIVE ==================== */}
-      <div className={`${activeTab === "financials" ? "block" : "hidden print:block"} space-y-6 print:mt-6`}>
+      <div className={`${activeTab === "financials" ? "block" : "hidden print:block"} space-y-6 print:mt-6 print:break-before-page`}>
         {/* Printable section title */}
         <div className="hidden print:block border-b border-black/10 pb-1 mb-4 mt-6">
           <h2 className="text-sm font-bold font-mono text-black uppercase">Diagnostics Part II: Opportunity Costs & Runway</h2>
@@ -800,7 +807,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
 
       {/* ==================== TAB 3: WEB MARKET INTELLIGENCE & BENCHMARKS ==================== */}
-      <div className={`${activeTab === "market" ? "block" : "hidden print:block"} space-y-6`}>
+      <div className={`${activeTab === "market" ? "block" : "hidden print:block"} space-y-6 print:mt-6 print:break-before-page`}>
         {/* Printable section title */}
         <div className="hidden print:block border-b border-black/10 pb-1 mb-4 mt-6">
           <h2 className="text-sm font-bold font-mono text-black uppercase">Diagnostics Part III: Web Search Grounding & Regional Context</h2>
@@ -1118,7 +1125,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
 
       {/* ==================== TAB 4: PROFILE & BEHAVIORAL DIAGNOSTICS ==================== */}
-      <div className={`${activeTab === "profile" ? "block" : "hidden print:block"} space-y-6`}>
+      <div className={`${activeTab === "profile" ? "block" : "hidden print:block"} space-y-6 print:mt-6 print:break-before-page`}>
         {/* Printable section title */}
         <div className="hidden print:block border-b border-black/10 pb-1 mb-4 mt-6">
           <h2 className="text-sm font-bold font-mono text-black uppercase">Diagnostics Part TIV: Profile Resolutions & Stress Psychology</h2>

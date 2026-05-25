@@ -33,7 +33,9 @@ import {
   Check,
   Cpu,
   Loader2,
-  Trash2
+  Trash2,
+  ZoomIn,
+  ZoomOut
 } from "lucide-react";
 
 export default function App() {
@@ -94,6 +96,15 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [errorDetails, setErrorDetails] = useState<{ message: string; code?: string; requestId?: string | null } | null>(null);
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
+  const [fontSizeIncrease, setFontSizeIncrease] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (fontSizeIncrease) {
+      document.documentElement.classList.add('font-lg');
+    } else {
+      document.documentElement.classList.remove('font-lg');
+    }
+  }, [fontSizeIncrease]);
 
   // Advanced pipeline state/control synchronization
   const [activeStageIdx, setActiveStageIdx] = useState<number>(0);
@@ -430,6 +441,9 @@ export default function App() {
 
       const report = await response.json();
       const finalReport = report?.result || report;
+      if (finalReport && !finalReport.requestId && report.requestId) {
+        finalReport.requestId = report.requestId;
+      }
 
       if (finalReport) {
         // Normalize overallVerdict support
@@ -510,42 +524,63 @@ export default function App() {
           </div>
         </div>
 
-        {!showLanding && step !== 8 && (
-          <div className="flex items-center gap-4">
-            {confirmClear ? (
-              <div className="flex items-center gap-2 animate-pulse bg-red-950/40 border border-red-500/30 px-3 py-1 rounded">
-                <button
-                  id="clear-draft-confirm-btn"
-                  type="button"
-                  onClick={handleClearDraft}
-                  className="text-[10px] tracking-widest uppercase text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
-                >
-                  Confirm Clear
-                </button>
-                <span className="text-white/20 text-xs">|</span>
-                <button
-                  id="clear-draft-cancel-btn"
-                  type="button"
-                  onClick={() => setConfirmClear(false)}
-                  className="text-[10px] tracking-widest uppercase text-white/50 hover:text-white font-medium transition-colors cursor-pointer"
-                >
-                  Cancel
-                </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setFontSizeIncrease(prev => !prev)}
+            className="text-[10px] tracking-widest uppercase text-white/40 hover:text-white font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer mr-2"
+            title="Toggle Accessibility Font Size"
+          >
+            {fontSizeIncrease ? (
+              <div className="flex items-end gap-0.5 text-[#d4af37]">
+                <span className="text-[10px] leading-none mb-[1px]">A</span>
+                <span className="text-[14px] leading-none">A</span>
               </div>
             ) : (
-              <button
-                id="clear-draft-btn"
-                type="button"
-                onClick={() => setConfirmClear(true)}
-                className="text-[10px] tracking-widest uppercase text-white/40 hover:text-red-400 font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer"
-                title="Clear draft inputs"
-              >
-                <Trash2 className="w-3.5 h-3.5 text-red-500/80" />
-                <span className="hidden sm:inline">Clear draft</span>
-              </button>
+              <div className="flex items-end gap-0.5 text-white/60">
+                <span className="text-[10px] leading-none mb-[1px]">A</span>
+                <span className="text-[14px] leading-none">A</span>
+              </div>
             )}
-          </div>
-        )}
+          </button>
+          
+          {!showLanding && step !== 8 && (
+            <div className="flex items-center gap-4">
+              {confirmClear ? (
+                <div className="flex items-center gap-2 animate-pulse bg-red-950/40 border border-red-500/30 px-3 py-1 rounded">
+                  <button
+                    id="clear-draft-confirm-btn"
+                    type="button"
+                    onClick={handleClearDraft}
+                    className="text-[10px] tracking-widest uppercase text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
+                  >
+                    Confirm Clear
+                  </button>
+                  <span className="text-white/20 text-xs">|</span>
+                  <button
+                    id="clear-draft-cancel-btn"
+                    type="button"
+                    onClick={() => setConfirmClear(false)}
+                    className="text-[10px] tracking-widest uppercase text-white/50 hover:text-white font-medium transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  id="clear-draft-btn"
+                  type="button"
+                  onClick={() => setConfirmClear(true)}
+                  className="text-[10px] tracking-widest uppercase text-white/40 hover:text-red-400 font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  title="Clear draft inputs"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-500/80" />
+                  <span className="hidden sm:inline">Clear draft</span>
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Main Container core */}
@@ -583,13 +618,13 @@ export default function App() {
 
         {/* Validation Execution Stages Screener */}
         {isSubmitting && (
-          <div id="submitting-stages-screener" className="bg-[#0f0f12] border border-white/10 rounded-xl p-8 space-y-8 animate-fade-in text-center my-6 max-w-2xl mx-auto shadow-xl">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <Loader2 className="w-12 h-12 text-[#d4af37] animate-spin" />
-              <h2 className="text-xl font-serif font-light text-white uppercase tracking-wider">
+          <div id="submitting-stages-screener" className="bg-[#0f0f12] border border-white/10 rounded-xl p-16 sm:p-24 space-y-12 animate-fade-in text-center my-6 max-w-4xl w-full mx-auto shadow-2xl min-h-[500px] flex flex-col justify-center">
+            <div className="flex flex-col items-center justify-center space-y-6">
+              <Loader2 className="w-16 h-16 text-[#d4af37] animate-spin" />
+              <h2 className="text-3xl font-serif font-light text-white uppercase tracking-wider">
                 Simulating Scenario Risk Drivers
               </h2>
-              <p className="text-xs text-white/50 max-w-md mx-auto leading-relaxed">
+              <p className="text-sm text-white/50 max-w-lg mx-auto leading-relaxed">
                 Please wait while we stress-test your financials against target regional demand, compute the psychological risk curve, and run deep AI scenario benchmarks. This might take 30 to 60 seconds.
               </p>
             </div>

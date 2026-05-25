@@ -325,7 +325,7 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
           type="submit"
           className="px-6 py-2.5 bg-white hover:bg-white/90 text-black text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
         >
-          <span>Continue to Financials</span>
+          <span>Continue to Plan B</span>
           <Milestone className="w-4 h-4 text-black" />
         </button>
       </div>

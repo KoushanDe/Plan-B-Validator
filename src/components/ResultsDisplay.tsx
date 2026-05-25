@@ -20,7 +20,8 @@ import {
   FileText,
   User,
   LayoutDashboard,
-  Coins
+  Coins,
+  Zap
 } from "lucide-react";
 
 interface ResultsDisplayProps {
@@ -1131,8 +1132,43 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
           <h2 className="text-sm font-bold font-mono text-app-base uppercase">Diagnostics Part TIV: Profile Resolutions & Stress Psychology</h2>
         </div>
 
+        {/* Behavioral Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 flex items-center justify-between shadow-sm">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-app-gold flex items-center gap-1.5 font-mono mb-2">
+                <ShieldAlert className="w-4 h-4" /> Risk Taking Profile
+              </span>
+              <p className="text-xs text-app-muted print:text-black/70 font-sans max-w-[200px] leading-relaxed">
+                Appetite for ambiguity and unconventional career mechanics.
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-4xl print:text-2xl font-bold font-mono text-app-main print:text-black">
+                {results.riskTakingScore || Math.min(100, Math.floor((results.riskScore || 50) * 1.2))}/100
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 flex items-center justify-between shadow-sm">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5 font-mono mb-2">
+                <Zap className="w-4 h-4" /> Founder Mindset
+              </span>
+              <p className="text-xs text-app-muted print:text-black/70 font-sans max-w-[200px] leading-relaxed">
+                Independent execution, resilience, and strategic pivoting ability.
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="text-4xl print:text-2xl font-bold font-mono text-app-main print:text-black">
+                {results.founderMindsetScore || Math.min(100, Math.floor((results.feasibilityScore || 60) * 1.15))}/100
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Psychology of stress alignment */}
-        <div className="bg-app-panel border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded p-6 space-y-5">
+        <div className="bg-app-panel border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 space-y-5">
           <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2.5">
             <BookOpen className="w-4.5 h-4.5 text-app-gold" />
             <span>Stress Resilience & Psychology Alignment</span>

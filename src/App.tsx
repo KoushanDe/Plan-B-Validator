@@ -507,8 +507,8 @@ export default function App() {
     ...(researchOptions.enableResearch ? [{ stage: "RESEARCH", label: "Regional Web Pricing Research" }] : []),
     ...(planB.iWillQuitMyJob ? [{ stage: "MOCK_REHIRE", label: "Assessing Corporate Re-hire Market" }] : []),
     { stage: "SCORING", label: "Confidence Metric Allocation" },
-    { stage: "OPENAI_CORE", label: "Deep Scenario Simulation (OpenAI)" },
-    { stage: "GEMINI_DEEP", label: "Deep Reasoning Valuation (Gemini)" },
+    { stage: "OPENAI_CORE", label: "Deep Scenario Simulation" },
+    { stage: "GEMINI_DEEP", label: "Deep Reasoning Valuation" },
     { stage: "COMPLETE", label: "Decision Report Assembly" },
   ];
 
@@ -835,7 +835,13 @@ export default function App() {
         <p className="max-w-[600px] mx-auto px-4 leading-relaxed">
           Plan B Validator is an analytical framework and should not be considered financial or professional career advice. Validate all market data independently.
         </p>
-        <p className="mt-2 font-mono text-[9px] opacity-60">© 2026 Plan B Validator • v1.0.42 • TX_DC_01</p>
+        <p className="mt-3 font-mono text-[9px] opacity-60">© 2026 Plan B Validator • v1.0.42 • TX_DC_01</p>
+        <div className="mt-3">
+          <a href="https://www.linkedin.com/in/koushan-de-04a966192/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-app-main transition-colors text-xs font-sans normal-case opacity-80 hover:opacity-100">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            Created by Koushan De
+          </a>
+        </div>
       </footer>
     </div>
   );

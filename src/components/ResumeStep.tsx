@@ -156,7 +156,7 @@ export default function ResumeStep({
                 <p className="text-xs text-app-dim mt-1 leading-relaxed">
                   We will query live search resources, community forums, and hiring platforms to evaluate local trends, wage listings, and demand curves.
                 </p>
-                {!file && (
+                {!file && researchOptions.enableResearch && (
                   <p className="text-xs text-app-gold mt-2 font-medium flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5" />
                     Web research is recommended with a resume for better analysis. We do not store or sell any data.

@@ -120,6 +120,9 @@ input[type="number"] {
 }
 
 @media print {
+  html {
+    font-size: 13px !important;
+  }
   body {
     background: white !important;
     color: black !important;

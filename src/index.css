@@ -121,7 +121,7 @@ input[type="number"] {
 
 @media print {
   html {
-    font-size: 13px !important;
+    font-size: 11px !important;
   }
   body {
     background: white !important;

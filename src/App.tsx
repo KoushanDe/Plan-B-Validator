@@ -91,6 +91,7 @@ export default function App() {
   });
 
   // Loading, Analysis and Event States
+  const [pipelineTimer, setPipelineTimer] = useState<number>(90);
   const [validationResult, setValidationResult] = useState<ValidationResults | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [sseStage, setSseStage] = useState<any>("SANITIZE");
@@ -100,6 +101,17 @@ export default function App() {
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
   const [fontSizeIncrease, setFontSizeIncrease] = useState<boolean>(false);
   const [isLightTheme, setIsLightTheme] = useState<boolean>(false);
+
+  useEffect(() => {
+    let timerInterval: any;
+    if (isSubmitting) {
+      setPipelineTimer(90);
+      timerInterval = setInterval(() => {
+        setPipelineTimer(prev => Math.max(0, prev - 1));
+      }, 1000);
+    }
+    return () => clearInterval(timerInterval);
+  }, [isSubmitting]);
 
   useEffect(() => {
     if (fontSizeIncrease) {
@@ -642,17 +654,22 @@ export default function App() {
         {isSubmitting && (
           <div id="submitting-stages-screener" className="bg-app-panel border border-app-border rounded-xl p-16 sm:p-24 space-y-12 animate-fade-in text-center my-6 max-w-4xl w-full mx-auto shadow-2xl min-h-[500px] flex flex-col justify-center">
             <div className="flex flex-col items-center justify-center space-y-6">
-              <Loader2 className="w-16 h-16 text-app-gold animate-spin" />
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] font-bold text-app-dim uppercase tracking-[0.2em] mb-2">Estimated Completion Time</span>
+                <div className="text-6xl font-mono text-app-gold font-light tabular-nums">
+                  {Math.floor(pipelineTimer / 60)}:{(pipelineTimer % 60).toString().padStart(2, '0')}
+                </div>
+              </div>
               <h2 className="text-3xl font-serif font-light text-app-main uppercase tracking-wider">
                 Simulating Scenario Risk Drivers
               </h2>
               <p className="text-sm text-app-muted max-w-lg mx-auto leading-relaxed">
-                Please wait while we stress-test your financials against target regional demand, compute the psychological risk curve, and run deep AI scenario benchmarks. This might take 30 to 60 seconds.
+                Please wait while we stress-test your financials against target regional demand, compute the psychological risk curve, and run deep AI scenario benchmarks. This might take 60 to 90 seconds.
               </p>
             </div>
 
             {/* Stepper tracking columns */}
-            <div className="max-w-md mx-auto space-y-3 bg-app-subtle p-6 rounded-lg border border-app-border-light text-left">
+            <div className="max-w-2xl w-full mx-auto space-y-3 bg-app-subtle p-6 rounded-lg border border-app-border-light text-left">
               <h3 className="text-[10px] font-bold text-app-dim uppercase tracking-[0.2em] pl-1">
                 Validators pipeline:
               </h3>
@@ -835,7 +852,7 @@ export default function App() {
         <p className="max-w-[600px] mx-auto px-4 leading-relaxed">
           Plan B Validator is an analytical framework and should not be considered financial or professional career advice. Validate all market data independently.
         </p>
-        <p className="mt-3 font-mono text-[9px] opacity-60">© 2026 Plan B Validator • v1.0.42 • TX_DC_01</p>
+        <p className="mt-3 font-mono text-[9px] opacity-60">© 2026 Plan B Validator • Analysis Engine v1.0 • Live Data Grounding</p>
         <div className="mt-3">
           <a href="https://www.linkedin.com/in/koushan-de-04a966192/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-app-main transition-colors text-xs font-sans normal-case opacity-80 hover:opacity-100">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>

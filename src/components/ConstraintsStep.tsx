@@ -126,7 +126,7 @@ export default function ConstraintsStep({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label htmlFor="minimumAcceptableSalary" className="block text-xs uppercase tracking-widest text-app-dim mb-2 font-semibold text-app-main">
-              Minimum acceptable monthly salary / cash flow *
+              Minimum acceptable monthly salary after stability *
             </label>
             <div className="relative rounded">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-app-dim text-xs font-mono">₹</span>

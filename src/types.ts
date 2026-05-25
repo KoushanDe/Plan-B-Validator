@@ -95,6 +95,14 @@ export interface CurrentMarketConditionForHiring {
   market_notes?: string;
 }
 
+export interface PsychologyAssessment {
+  riskProfile: string;
+  scores: Record<string, number>;
+  summary: string;
+  riskTakingPotential: number;
+  founderMindset: number;
+}
+
 export interface ValidationResults {
   verdict: Verdict;
   feasibilityScore: number;
@@ -113,6 +121,7 @@ export interface ValidationResults {
   researchContext: ResearchContext;
   marketValueAssessment?: any;
   currentMarketConditionForHiring?: CurrentMarketConditionForHiring;
+  psychologyAssessment?: PsychologyAssessment;
   [key: string]: any;
 }
 

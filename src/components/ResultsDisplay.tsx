@@ -299,7 +299,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
     : `Self-preservation limit computed based on your liquid assets and active debt obligations.`;
 
   // Card 3: Confidence Desc
-  const confidenceCardDescription = results.personalitySummary
+  const confidenceCardDescription = (results.psychologyAssessment?.summary || results.personalitySummary)
     ? `Confidence index driven by professional credential strength and behavioral profile alignment.`
     : `Certainty rating derived from regional compensation data, density and profile completeness.`;
 
@@ -367,7 +367,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
   });
 
   return (
-    <div id="results-display-wrapper" className="space-y-8 animate-fade-in print:bg-white print:break-inside-avoid print:text-black">
+    <div id="results-display-wrapper" className="space-y-8 animate-fade-in print:bg-white print:text-black">
       
       {/* Header Print Block */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-app-border pb-5 print:border-black/20">
@@ -428,9 +428,9 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
       </div>
 
       {/* KPI TOP LEVEL GRID (Shows everywhere, with beautiful small descriptions below) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-4 print:gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-4 print:gap-3 print:break-inside-avoid">
         {/* Risk Score */}
-        <div className={`p-4 rounded border flex flex-col justify-between ${getScoreColor(results.riskScore, true)} print:bg-white print:break-inside-avoid print:border-black/20 print:break-inside-avoid`}>
+        <div className={`p-4 rounded border flex flex-col justify-between ${getScoreColor(results.riskScore, true)} print:bg-white print:border-black/20 print:break-inside-avoid`}>
           <div>
             <div className="text-[9px] uppercase tracking-widest opacity-85 font-mono flex items-center gap-1">
               <ShieldAlert className="w-3 h-3 text-app-error" />
@@ -446,7 +446,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </div>
 
         {/* Capital Runway Months */}
-        <div className="p-4 rounded border border-app-border-light bg-app-subtle flex flex-col justify-between text-app-main/90 print:bg-white print:break-inside-avoid print:border-black/20 print:text-black print:break-inside-avoid">
+        <div className="p-4 rounded border border-app-border-light bg-app-subtle flex flex-col justify-between text-app-main/90 print:bg-white print:border-black/20 print:text-black print:break-inside-avoid">
           <div>
             <div className="text-[9px] uppercase tracking-widest text-app-gold font-mono flex items-center gap-1">
               <Activity className="w-3 h-3 text-app-gold" />
@@ -463,7 +463,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </div>
 
         {/* Confidence rating */}
-        <div className={`p-4 rounded border flex flex-col justify-between ${getScoreColor(confidenceNumeric)} print:bg-white print:break-inside-avoid print:border-black/20 print:break-inside-avoid`}>
+        <div className={`p-4 rounded border flex flex-col justify-between ${getScoreColor(confidenceNumeric)} print:bg-white print:border-black/20 print:break-inside-avoid`}>
           <div>
             <div className="text-[9px] uppercase tracking-widest opacity-85 font-mono flex items-center gap-1">
               <Layers className="w-3 h-3" />
@@ -479,7 +479,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </div>
 
         {/* Opportunity Cost */}
-        <div className="p-4 rounded border border-app-border-light bg-app-subtle flex flex-col justify-between text-app-main/90 print:bg-white print:break-inside-avoid print:border-black/20 print:text-black print:break-inside-avoid">
+        <div className="p-4 rounded border border-app-border-light bg-app-subtle flex flex-col justify-between text-app-main/90 print:bg-white print:border-black/20 print:text-black print:break-inside-avoid">
           <div>
             <div className="text-[9px] uppercase tracking-widest text-app-gold font-mono flex items-center gap-1">
               <Award className="w-3 h-3 text-app-gold" />
@@ -558,7 +558,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         {/* Breakdown progress bar items */}
         {results.scoreBreakdown && (
-          <div className="bg-app-subtle border border-app-border-light rounded-lg p-5 space-y-4 print:border-black/10 print:bg-white print:break-inside-avoid">
+          <div className="bg-app-subtle border border-app-border-light rounded-lg p-5 space-y-4 print:border-black/10 print:bg-white ">
             <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-app-gold" />
               <span>Diagnostic Pillar Slices</span>
@@ -593,7 +593,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Key Strategic Strengths */}
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-5 space-y-4 print:break-inside-avoid">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 space-y-4 ">
             <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2.5 border-b border-app-border print:border-black/10 pb-3">
               <TrendingUp className="w-4 h-4 text-app-success" />
               <span>Key Strategic Strengths</span>
@@ -613,7 +613,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
           </div>
 
           {/* Warning Flags & Friction Curves */}
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-5 space-y-4 print:break-inside-avoid">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 space-y-4 ">
             <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2.5 border-b border-app-border print:border-black/10 pb-3">
               <ShieldAlert className="w-4 h-4 text-app-error" />
               <span>Warning Flags & Friction Curves</span>
@@ -646,7 +646,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </div>
 
         {/* Corporate Baseline vs Plan B Horizon */}
-        <div className="bg-app-panel border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded p-6 space-y-6">
+        <div className="bg-app-panel border border-app-border-light print:border-black/10 print:bg-white  rounded p-6 space-y-6">
           <div>
             <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2">
               <Coins className="w-4.5 h-4.5 text-app-gold" />
@@ -816,7 +816,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         {/* ==================== CORPORATE RE-HIRE OUTLOOK ==================== */}
         {iWillQuitMyJob && results.currentMarketConditionForHiring && results.currentMarketConditionForHiring.summary && (
-          <div className="bg-app-panel border border-app-gold/30 print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 space-y-6">
+          <div className="bg-app-panel border border-app-gold/30 print:border-black/10 print:bg-white  rounded-lg p-6 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-app-border pb-4 gap-3">
               <div>
                 <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2 font-medium">
@@ -938,7 +938,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Market Sentiment & Summary */}
-          <div className="lg:col-span-2 bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-5 space-y-4">
+          <div className="lg:col-span-2 bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-app-border pb-3">
               <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2">
                 <Briefcase className="w-4.5 h-4.5 text-app-gold" />
@@ -970,7 +970,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
           </div>
 
           {/* Dials & Compensation Ranges */}
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-5 flex flex-col justify-between">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 flex flex-col justify-between">
             <div className="space-y-4">
               <h3 className="font-serif text-app-main print:text-black text-md">Compensation Benchmarks</h3>
               
@@ -1001,7 +1001,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         {/* Resume & Market Value Profile */}
         {(results.marketValueAssessment || results.researchContext?.marketValueAssessment || results.opportunity_cost_risk) && (
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 space-y-4">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-6 space-y-4">
             <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2 border-b border-app-border print:border-black/10 pb-3">
               <FileText className="w-4.5 h-4.5 text-app-gold" />
               <span>Resume & Market Value Assessment</span>
@@ -1072,7 +1072,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         {/* Detailed market notes & salary context */}
         {results.researchContext?.salary_notes && (
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded p-6 space-y-2">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded p-6 space-y-2">
             <span className="text-[10px] uppercase font-mono text-app-dim print:text-black/50 tracking-wider">Salary Benchmarking Insights</span>
             <p className="text-xs text-app-main print:text-black font-sans leading-relaxed">{results.researchContext.salary_notes}</p>
           </div>
@@ -1080,7 +1080,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         {/* Risk factors side grid */}
         {results.researchContext?.risk_factors && results.researchContext.risk_factors.length > 0 && (
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded p-6 space-y-3">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded p-6 space-y-3">
             <span className="text-[10px] uppercase font-mono text-app-error tracking-wider font-semibold">Granular Regional Risk Exposures</span>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {results.researchContext.risk_factors.map((factor: string, idx: number) => (
@@ -1133,42 +1133,58 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </div>
 
         {/* Behavioral Metrics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 flex items-center justify-between shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 flex flex-col justify-between shadow-sm">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-app-gold flex items-center gap-1.5 font-mono mb-2">
                 <ShieldAlert className="w-4 h-4" /> Risk Taking Profile
               </span>
-              <p className="text-xs text-app-muted print:text-black/70 font-sans max-w-[200px] leading-relaxed">
+              <p className="text-xs text-app-muted print:text-black/70 font-sans leading-relaxed">
                 Appetite for ambiguity and unconventional career mechanics.
               </p>
             </div>
-            <div className="text-right">
-              <span className="text-4xl print:text-2xl font-bold font-mono text-app-main print:text-black">
-                {results.riskTakingScore || Math.min(100, Math.floor((results.riskScore || 50) * 1.2))}/100
+            <div className="mt-4 text-right">
+              <span className="text-3xl print:text-2xl font-bold font-mono text-app-main print:text-black">
+                {results.psychologyAssessment ? results.psychologyAssessment.riskTakingPotential : Math.round(Math.min(100, Math.floor((results.riskScore || 50) * 1.2)) / 10)}/10
               </span>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 flex items-center justify-between shadow-sm">
+          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 flex flex-col justify-between shadow-sm">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 flex items-center gap-1.5 font-mono mb-2">
                 <Zap className="w-4 h-4" /> Founder Mindset
               </span>
-              <p className="text-xs text-app-muted print:text-black/70 font-sans max-w-[200px] leading-relaxed">
+              <p className="text-xs text-app-muted print:text-black/70 font-sans leading-relaxed">
                 Independent execution, resilience, and strategic pivoting ability.
               </p>
             </div>
-            <div className="text-right">
-              <span className="text-4xl print:text-2xl font-bold font-mono text-app-main print:text-black">
-                {results.founderMindsetScore || Math.min(100, Math.floor((results.feasibilityScore || 60) * 1.15))}/100
+            <div className="mt-4 text-right">
+              <span className="text-3xl print:text-2xl font-bold font-mono text-app-main print:text-black">
+                {results.psychologyAssessment ? results.psychologyAssessment.founderMindset : Math.round(Math.min(100, Math.floor((results.feasibilityScore || 60) * 1.15)) / 10)}/10
+              </span>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-app-panel to-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-5 flex flex-col justify-between shadow-sm">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-500 flex items-center gap-1.5 font-mono mb-2">
+                <User className="w-4 h-4" /> Persona
+              </span>
+              <p className="text-xs text-app-muted print:text-black/70 font-sans leading-relaxed">
+                Dominant psychological framing for career transitions.
+              </p>
+            </div>
+            <div className="mt-4 w-full flex justify-end">
+              <span className="text-[10px] sm:text-xs print:text-xs font-bold font-mono text-app-main print:text-black uppercase tracking-widest px-3 py-2 bg-app-subtle border border-app-border rounded flex items-center justify-center text-center w-full min-h-[46px] whitespace-normal">
+                {results.psychologyAssessment ? results.psychologyAssessment.riskProfile.replace(/_/g, ' ') : "Not Available"}
               </span>
             </div>
           </div>
         </div>
 
         {/* Psychology of stress alignment */}
-        <div className="bg-app-panel border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded-lg p-6 space-y-5">
+        <div className="bg-app-panel border border-app-border-light print:border-black/10 print:bg-white  rounded-lg p-6 space-y-5">
           <h3 className="font-serif text-app-main print:text-black text-md flex items-center gap-2.5">
             <BookOpen className="w-4.5 h-4.5 text-app-gold" />
             <span>Stress Resilience & Psychology Alignment</span>
@@ -1178,7 +1194,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
             <div className="bg-app-subtle print:bg-gray-100 border border-app-border-light p-4 rounded">
               <span className="text-[9px] font-bold uppercase tracking-wider text-app-dim print:text-black/50 block mb-1 font-mono">Psychology & Trait Metrics</span>
               <p className="text-xs text-app-main print:text-black leading-relaxed font-sans mt-2">
-                {results.personalitySummary || "Evaluation details pending profile parameters mapping."}
+                {results.psychologyAssessment?.summary || results.personalitySummary || "Evaluation details pending profile parameters mapping."}
               </p>
             </div>
 
@@ -1203,7 +1219,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </div>
 
         {/* Transition Fallback Actions Timeline */}
-        <div className="bg-app-panel border border-app-gold/20 text-app-main rounded p-6 space-y-5 print:border-black/10 print:bg-white print:break-inside-avoid print:text-black">
+        <div className="bg-app-panel border border-app-gold/20 text-app-main rounded p-6 space-y-5 print:border-black/10 print:bg-white  print:text-black">
           <div className="flex gap-2 items-center">
             <Award className="w-5 h-5 text-app-gold" />
             <h3 className="font-serif text-md text-app-main print:text-black">Recommended Transition Fallback Plan</h3>
@@ -1235,7 +1251,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
 
         {/* Core assumptions & data gaps lists for formula context */}
         {((results.assumptions && results.assumptions.length > 0) || (displayedGaps && displayedGaps.length > 0)) && (
-          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white print:break-inside-avoid rounded p-5 space-y-4">
+          <div className="bg-app-subtle border border-app-border-light print:border-black/10 print:bg-white  rounded p-5 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
               {/* Core analysis assumptions */}
               {results.assumptions && results.assumptions.length > 0 && (

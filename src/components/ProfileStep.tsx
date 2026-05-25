@@ -180,7 +180,7 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
             maxLength={120}
             value={willUploadResume ? "" : (data.currentProfession || "")}
             onChange={(e) => onChange({ currentProfession: e.target.value })}
-            placeholder={willUploadResume ? "Bypassed — details will be extracted from resume" : "e.g., Senior Software Engineer"}
+            placeholder={willUploadResume ? "Will be parsed from resume" : "e.g., Senior Software Engineer"}
             className={`w-full px-4 py-3 rounded border text-sm font-mono transition-all ${
               willUploadResume
                 ? "bg-app-subtle border-app-border-light text-app-dim cursor-not-allowed selection:bg-transparent placeholder-white/10"
@@ -208,7 +208,7 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
             maxLength={120}
             value={willUploadResume ? "" : (data.industry || "")}
             onChange={(e) => onChange({ industry: e.target.value })}
-            placeholder={willUploadResume ? "Bypassed — details will be extracted from resume" : "e.g., Finance, Tech, Healthcare"}
+            placeholder={willUploadResume ? "Will be parsed from resume" : "e.g., Finance, Tech, Healthcare"}
             className={`w-full px-4 py-3 rounded border text-sm font-mono transition-all ${
               willUploadResume
                 ? "bg-app-subtle border-app-border-light text-app-dim cursor-not-allowed selection:bg-transparent placeholder-white/10"
@@ -241,7 +241,7 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
                 onChange({ yearsExperience: isNaN(parsed) ? undefined as any : parsed });
               }
             }}
-            placeholder={willUploadResume ? "Bypassed" : "e.g., 5.5"}
+            placeholder={willUploadResume ? "Will be parsed from resume" : "e.g., 5.5"}
             className={`w-full px-4 py-3 rounded border text-sm font-mono transition-all ${
               willUploadResume
                 ? "bg-app-subtle border-app-border-light text-app-dim cursor-not-allowed selection:bg-transparent placeholder-white/10"
@@ -281,7 +281,7 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
             maxLength={80}
             value={willUploadResume ? "" : (data.country || "")}
             onChange={(e) => onChange({ country: e.target.value })}
-            placeholder={willUploadResume ? "Bypassed — details will be extracted from resume" : "e.g., India"}
+            placeholder={willUploadResume ? "Will be parsed from resume" : "e.g., India"}
             className={`w-full px-4 py-3 rounded border text-sm font-mono transition-all ${
               willUploadResume
                 ? "bg-app-subtle border-app-border-light text-app-dim cursor-not-allowed selection:bg-transparent placeholder-white/10"
@@ -309,7 +309,7 @@ export default function ProfileStep({ data, onChange, onNext, file, onChangeFile
             maxLength={80}
             value={willUploadResume ? "" : (data.city || "")}
             onChange={(e) => onChange({ city: e.target.value })}
-            placeholder={willUploadResume ? "Bypassed — details will be extracted from resume" : "e.g., Bengaluru"}
+            placeholder={willUploadResume ? "Will be parsed from resume" : "e.g., Bengaluru"}
             className={`w-full px-4 py-3 rounded border text-sm font-mono transition-all ${
               willUploadResume
                 ? "bg-app-subtle border-app-border-light text-app-dim cursor-not-allowed selection:bg-transparent placeholder-white/10"

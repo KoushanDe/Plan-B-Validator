@@ -91,7 +91,7 @@ export default function App() {
   });
 
   // Loading, Analysis and Event States
-  const [pipelineTimer, setPipelineTimer] = useState<number>(90);
+  const [pipelineTimer, setPipelineTimer] = useState<number>(120);
   const [validationResult, setValidationResult] = useState<ValidationResults | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [sseStage, setSseStage] = useState<any>("SANITIZE");
@@ -105,7 +105,7 @@ export default function App() {
   useEffect(() => {
     let timerInterval: any;
     if (isSubmitting) {
-      setPipelineTimer(90);
+      setPipelineTimer(120);
       timerInterval = setInterval(() => {
         setPipelineTimer(prev => Math.max(0, prev - 1));
       }, 1000);
@@ -353,10 +353,23 @@ export default function App() {
     };
   }, [isSubmitting, planB.iWillQuitMyJob]);
 
-  // Autoscroll effect for pipeline stepper
+  // Scroll window to top when submission starts to see timer clearly
+  useEffect(() => {
+    if (isSubmitting) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isSubmitting]);
+
+  // Autoscroll effect for pipeline stepper within its own container
   useEffect(() => {
     if (isSubmitting && activeStageRef.current) {
-      activeStageRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      const container = activeStageRef.current.closest('.overflow-y-auto');
+      if (container) {
+        container.scrollTo({ 
+          top: activeStageRef.current.offsetTop - (container as HTMLElement).offsetTop - 20, 
+          behavior: "smooth" 
+        });
+      }
     }
   }, [sseStage, isSubmitting]);
 
@@ -664,7 +677,7 @@ export default function App() {
                 Simulating Scenario Risk Drivers
               </h2>
               <p className="text-sm text-app-muted max-w-lg mx-auto leading-relaxed">
-                Please wait while we stress-test your financials against target regional demand, compute the psychological risk curve, and run deep AI scenario benchmarks. This might take 60 to 90 seconds.
+                Please wait while we stress-test your financials against target regional demand, compute the psychological risk curve, and run deep AI scenario benchmarks. This might take 90 to 120 seconds.
               </p>
             </div>
 

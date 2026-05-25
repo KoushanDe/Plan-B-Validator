@@ -1194,7 +1194,7 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
             <div className="bg-app-subtle print:bg-gray-100 border border-app-border-light p-4 rounded">
               <span className="text-[9px] font-bold uppercase tracking-wider text-app-dim print:text-black/50 block mb-1 font-mono">Psychology & Trait Metrics</span>
               <p className="text-xs text-app-main print:text-black leading-relaxed font-sans mt-2">
-                {results.psychologyAssessment?.summary || results.personalitySummary || "Evaluation details pending profile parameters mapping."}
+                {results.personalitySummary || results.psychologyAssessment?.summary || "Evaluation details pending profile parameters mapping."}
               </p>
             </div>
 

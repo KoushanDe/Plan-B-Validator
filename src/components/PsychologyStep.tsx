@@ -125,19 +125,19 @@ export default function PsychologyStep({ data, onChange, onNext, onPrev, hasUplo
 
   return (
     <form id="psychology-step-form" onSubmit={handleSubmit} className="space-y-6">
-      <div className="border-b border-white/10 pb-4">
-        <h2 className="text-xl font-serif text-white flex items-center gap-2.5">
-          <BrainCircuit className="w-5 h-5 text-[#d4af37]" />
+      <div className="border-b border-app-border pb-4">
+        <h2 className="text-xl font-serif text-app-main flex items-center gap-2.5">
+          <BrainCircuit className="w-5 h-5 text-app-gold" />
           <span>Psychological Readiness Probe</span>
         </h2>
-        <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">
+        <p className="text-xs text-app-dim mt-1 uppercase tracking-wider">
           An honest assessment of your mental model, endurance limits, and behavioral traits under high ambiguity.
         </p>
       </div>
 
       {loading && (
-        <div className="text-xs text-[#d4af37] flex items-center gap-2 bg-white/[0.03] border border-white/5 px-3 py-2 rounded animate-pulse">
-          <div className="h-2 w-2 bg-[#d4af37] rounded-full animate-ping"></div>
+        <div className="text-xs text-app-gold flex items-center gap-2 bg-app-input border border-app-border-light px-3 py-2 rounded animate-pulse">
+          <div className="h-2 w-2 bg-app-gold rounded-full animate-ping"></div>
           <span>Syncing questionnaire schema with backend servers...</span>
         </div>
       )}
@@ -148,14 +148,14 @@ export default function PsychologyStep({ data, onChange, onNext, onPrev, hasUplo
           return (
             <div
               key={q.id}
-              className="p-5 rounded border border-white/5 bg-white/[0.01] hover:border-white/10 transition-colors"
+              className="p-5 rounded border border-app-border-light bg-app-subtle hover:border-app-border transition-colors"
             >
               <div className="flex items-start gap-4">
-                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded bg-white/5 text-[#d4af37] font-mono text-xs font-semibold">
+                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded bg-app-subtle text-app-gold font-mono text-xs font-semibold">
                   {idx + 1}
                 </span>
                 <div className="flex-1">
-                  <p className="text-sm font-sans font-medium text-white/95 leading-relaxed mb-4">
+                  <p className="text-sm font-sans font-medium text-app-main leading-relaxed mb-4">
                     {q.text || (q as any).question}
                   </p>
 
@@ -170,13 +170,13 @@ export default function PsychologyStep({ data, onChange, onNext, onPrev, hasUplo
                           onClick={() => selectAnswer(q.field, opt.score)}
                           className={`flex flex-col items-center justify-center py-2.5 px-1 rounded transition-all text-center cursor-pointer ${
                             isSelected
-                              ? "bg-[#d4af37] text-black font-semibold ring-1 ring-[#d4af37]/30"
-                              : "bg-white/[0.02] border border-white/5 hover:bg-white/5 text-white/70"
+                              ? "bg-app-gold text-app-base font-semibold ring-1 ring-[#d4af37]/30"
+                              : "bg-app-subtle border border-app-border-light hover:bg-app-subtle text-app-muted"
                           }`}
                         >
                           <span className="text-xs font-bold font-mono">{opt.score}</span>
                           <span className={`text-[8px] uppercase tracking-wider mt-1 truncate max-w-full hidden sm:block ${
-                            isSelected ? "text-black/80 font-bold" : "text-white/40"
+                            isSelected ? "text-app-base/80 font-bold" : "text-app-dim"
                           }`}>
                             {opt.label}
                           </span>
@@ -191,12 +191,12 @@ export default function PsychologyStep({ data, onChange, onNext, onPrev, hasUplo
         })}
       </div>
 
-      <div className="flex justify-between pt-4 border-t border-white/10">
+      <div className="flex justify-between pt-4 border-t border-app-border">
         <button
           id="psychology-prev-btn"
           type="button"
           onClick={onPrev}
-          className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
+          className="px-6 py-2.5 bg-app-subtle hover:bg-app-subtle-hover text-app-main text-xs font-bold uppercase tracking-widest border border-app-border transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -205,10 +205,10 @@ export default function PsychologyStep({ data, onChange, onNext, onPrev, hasUplo
         <button
           id="psychology-next-btn"
           type="submit"
-          className="px-6 py-2.5 bg-white hover:bg-white/90 text-black text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
+          className="px-6 py-2.5 bg-app-main hover:opacity-90 text-app-base text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
         >
           <span>{hasUploadedResume ? "Continue to Web Research" : "Continue to Resume Upload"}</span>
-          <ArrowRight className="w-4 h-4 text-black" />
+          <ArrowRight className="w-4 h-4 text-app-base" />
         </button>
       </div>
     </form>

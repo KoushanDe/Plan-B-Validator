@@ -6,6 +6,93 @@
   --font-display: "Space Grotesk", sans-serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-app-base: var(--app-base);
+  --color-app-panel: var(--app-panel);
+  --color-app-panel-glass: var(--app-panel-glass);
+  --color-app-subtle: var(--app-subtle);
+  --color-app-subtle-hover: var(--app-subtle-hover);
+  --color-app-input: var(--app-input);
+
+  --color-app-main: var(--app-main);
+  --color-app-muted: var(--app-muted);
+  --color-app-dim: var(--app-dim);
+
+  --color-app-border-strong: var(--app-border-strong);
+  --color-app-border: var(--app-border);
+  --color-app-border-light: var(--app-border-light);
+
+  --color-app-success: var(--app-success);
+  --color-app-success-muted: var(--app-success-muted);
+  --color-app-success-bg: var(--app-success-bg);
+  --color-app-success-border: var(--app-success-border);
+
+  --color-app-error: var(--app-error);
+  --color-app-error-muted: var(--app-error-muted);
+  --color-app-error-bg: var(--app-error-bg);
+  --color-app-error-border: var(--app-error-border);
+
+  --color-app-gold: var(--app-gold);
+}
+
+:root {
+  /* DARK THEME (default) */
+  --app-base: #0a0a0c;
+  --app-panel: #111114;
+  --app-panel-glass: rgba(17, 17, 20, 0.75);
+  --app-subtle: rgba(255, 255, 255, 0.03);
+  --app-subtle-hover: rgba(255, 255, 255, 0.08);
+  --app-input: rgba(255, 255, 255, 0.03);
+
+  --app-main: #e0e0e0;
+  --app-muted: rgba(255, 255, 255, 0.6);
+  --app-dim: rgba(255, 255, 255, 0.4);
+
+  --app-border-strong: rgba(255, 255, 255, 0.15);
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-border-light: rgba(255, 255, 255, 0.05);
+
+  --app-success: #34d399;
+  --app-success-muted: #6ee7b7;
+  --app-success-bg: rgba(16, 185, 129, 0.1);
+  --app-success-border: rgba(16, 185, 129, 0.1);
+
+  --app-error: #fb7185;
+  --app-error-muted: #fda4af;
+  --app-error-bg: rgba(244, 63, 94, 0.1);
+  --app-error-border: rgba(244, 63, 94, 0.2);
+
+  --app-gold: #d4af37;
+}
+
+html.light {
+  /* LIGHT THEME */
+  --app-base: #f4f4f5;
+  --app-panel: #ffffff;
+  --app-panel-glass: rgba(255, 255, 255, 0.75);
+  --app-subtle: rgba(0, 0, 0, 0.03);
+  --app-subtle-hover: rgba(0, 0, 0, 0.06);
+  --app-input: #ffffff;
+
+  --app-main: #000000;
+  --app-muted: rgba(0, 0, 0, 0.8);
+  --app-dim: rgba(0, 0, 0, 0.6);
+
+  --app-border-strong: rgba(0, 0, 0, 0.2);
+  --app-border: rgba(0, 0, 0, 0.1);
+  --app-border-light: rgba(0, 0, 0, 0.05);
+
+  --app-success: #065f46;
+  --app-success-muted: #047857;
+  --app-success-bg: rgba(16, 185, 129, 0.1);
+  --app-success-border: rgba(16, 185, 129, 0.2);
+
+  --app-error: #9f1239;
+  --app-error-muted: #be123c;
+  --app-error-bg: rgba(225, 29, 72, 0.08);
+  --app-error-border: rgba(225, 29, 72, 0.15);
+
+  --app-gold: #854d0e;
 }
 
 html {
@@ -17,8 +104,9 @@ html.font-lg {
 
 body {
   font-family: var(--font-sans);
-  background-color: #0a0a0c;
-  color: #e0e0e0;
+  background-color: var(--app-base);
+  color: var(--app-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Hide number input spinners/steppers */
@@ -46,7 +134,7 @@ input[type="number"] {
     display: none !important;
   }
   
-  .border, .border-white\/5, .border-white\/10 {
+  .border, .border-app-border-light, .border-app-border {
     border-color: #e2e8f0 !important;
   }
   
@@ -57,7 +145,7 @@ input[type="number"] {
     margin: 0 !important;
   }
   
-  .bg-white\/\[0\.01\] {
+  .bg-app-subtle {
     background-color: #f8fafc !important;
   }
 }

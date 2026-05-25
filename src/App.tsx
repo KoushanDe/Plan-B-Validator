@@ -35,7 +35,9 @@ import {
   Loader2,
   Trash2,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Sun,
+  Moon
 } from "lucide-react";
 
 export default function App() {
@@ -97,6 +99,7 @@ export default function App() {
   const [errorDetails, setErrorDetails] = useState<{ message: string; code?: string; requestId?: string | null } | null>(null);
   const [confirmClear, setConfirmClear] = useState<boolean>(false);
   const [fontSizeIncrease, setFontSizeIncrease] = useState<boolean>(false);
+  const [isLightTheme, setIsLightTheme] = useState<boolean>(false);
 
   useEffect(() => {
     if (fontSizeIncrease) {
@@ -105,6 +108,14 @@ export default function App() {
       document.documentElement.classList.remove('font-lg');
     }
   }, [fontSizeIncrease]);
+
+  useEffect(() => {
+    if (isLightTheme) {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+  }, [isLightTheme]);
 
   // Advanced pipeline state/control synchronization
   const [activeStageIdx, setActiveStageIdx] = useState<number>(0);
@@ -504,40 +515,51 @@ export default function App() {
   const activeStageIndex = sseStagesConfig.findIndex((item) => item.stage === sseStage);
 
   return (
-    <div id="app-root-container" className="min-h-screen flex flex-col bg-[#0a0a0c] text-[#e0e0e0]">
+    <div id="app-root-container" className="min-h-screen flex flex-col bg-app-base text-app-main">
       
       {/* Upper navigation header */}
-      <header className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-white/10 bg-[#0f0f12] print:hidden">
+      <header className="sticky top-0 z-50 flex items-center justify-between px-6 sm:px-10 py-5 border-b border-app-border bg-app-panel-glass backdrop-blur-md print:hidden">
         <div 
           className="flex items-center gap-3 cursor-pointer select-none group" 
           onClick={() => setShowLanding(true)}
           title="Return to Landing Page"
         >
-          <div className="w-8 h-8 bg-[#d4af37] group-hover:bg-[#f3e3a9] rounded-sm rotate-45 flex items-center justify-center shadow-md transition-colors duration-200">
-            <span className="text-black font-bold -rotate-45 text-xs font-serif">B</span>
-          </div>
+          <img 
+            src="/favicon.svg" 
+            alt="Logo"
+            className="w-14 h-14 group-hover:scale-105 transition-transform duration-200"
+          />
           <div>
-            <h1 className="text-base sm:text-lg font-medium tracking-widest uppercase text-white/95 flex flex-wrap items-center gap-2 group-hover:text-white transition-colors duration-200">
-              Plan B <span className="font-light text-white/40">Validator</span>
+            <h1 className="text-base sm:text-lg font-medium tracking-widest uppercase text-app-main flex flex-wrap items-center gap-2 group-hover:text-app-main transition-colors duration-200">
+              Plan B <span className="font-light text-app-dim">Validator</span>
             </h1>
-            <span className="text-[10px] text-white/30 tracking-wider font-light block">Scenario-based transition stress tester</span>
+            <span className="text-[10px] text-app-dim tracking-wider font-light block">Scenario-based transition stress tester</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={() => setIsLightTheme(prev => !prev)}
+            className="text-[10px] tracking-widest uppercase text-app-dim hover:text-app-main font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer"
+            title="Toggle Light/Dark Theme"
+          >
+            {isLightTheme ? <Moon className="w-4 h-4 text-app-gold" /> : <Sun className="w-4 h-4 text-app-main/60" />}
+          </button>
+          
+          <button
+            type="button"
             onClick={() => setFontSizeIncrease(prev => !prev)}
-            className="text-[10px] tracking-widest uppercase text-white/40 hover:text-white font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer mr-2"
+            className="text-[10px] tracking-widest uppercase text-app-dim hover:text-app-main font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer mr-2"
             title="Toggle Accessibility Font Size"
           >
             {fontSizeIncrease ? (
-              <div className="flex items-end gap-0.5 text-[#d4af37]">
+              <div className="flex items-end gap-0.5 text-app-gold">
                 <span className="text-[10px] leading-none mb-[1px]">A</span>
                 <span className="text-[14px] leading-none">A</span>
               </div>
             ) : (
-              <div className="flex items-end gap-0.5 text-white/60">
+              <div className="flex items-end gap-0.5 text-app-muted">
                 <span className="text-[10px] leading-none mb-[1px]">A</span>
                 <span className="text-[14px] leading-none">A</span>
               </div>
@@ -547,21 +569,21 @@ export default function App() {
           {!showLanding && step !== 8 && (
             <div className="flex items-center gap-4">
               {confirmClear ? (
-                <div className="flex items-center gap-2 animate-pulse bg-red-950/40 border border-red-500/30 px-3 py-1 rounded">
+                <div className="flex items-center gap-2 bg-app-error-bg border border-app-error-border px-3 py-1 rounded">
                   <button
                     id="clear-draft-confirm-btn"
                     type="button"
                     onClick={handleClearDraft}
-                    className="text-[10px] tracking-widest uppercase text-red-400 hover:text-red-300 font-bold transition-colors cursor-pointer"
+                    className="text-[10px] tracking-widest uppercase text-app-error hover:text-app-error-muted font-bold transition-colors cursor-pointer"
                   >
                     Confirm Clear
                   </button>
-                  <span className="text-white/20 text-xs">|</span>
+                  <span className="text-app-dim text-xs">|</span>
                   <button
                     id="clear-draft-cancel-btn"
                     type="button"
                     onClick={() => setConfirmClear(false)}
-                    className="text-[10px] tracking-widest uppercase text-white/50 hover:text-white font-medium transition-colors cursor-pointer"
+                    className="text-[10px] tracking-widest uppercase text-app-muted hover:text-app-main font-medium transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -571,10 +593,10 @@ export default function App() {
                   id="clear-draft-btn"
                   type="button"
                   onClick={() => setConfirmClear(true)}
-                  className="text-[10px] tracking-widest uppercase text-white/40 hover:text-red-400 font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="text-[10px] tracking-widest uppercase text-app-dim hover:text-app-error font-semibold px-2 py-1 flex items-center gap-1.5 transition-colors cursor-pointer"
                   title="Clear draft inputs"
                 >
-                  <Trash2 className="w-3.5 h-3.5 text-red-500/80" />
+                  <Trash2 className="w-3.5 h-3.5 text-app-error/80" />
                   <span className="hidden sm:inline">Clear draft</span>
                 </button>
               )}
@@ -588,8 +610,8 @@ export default function App() {
         
         {/* Dynamic Multi-Step Navigator Dots */}
         {step <= 7 && !showLanding && !isSubmitting && (
-          <div id="navigator-dots-wrapper" className="mb-10 print:hidden border-b border-white/5 pb-4">
-            <nav className="flex flex-wrap items-center justify-center sm:justify-between gap-x-6 gap-y-3 text-[11px] font-semibold tracking-widest text-white/40">
+          <div id="navigator-dots-wrapper" className="mb-10 print:hidden border-b border-app-border-light pb-4">
+            <nav className="flex flex-wrap items-center justify-center sm:justify-between gap-x-6 gap-y-3 text-[11px] font-semibold tracking-widest text-app-dim">
               {stepsConfig.map((item) => {
                 const isActive = step === item.num;
                 const isCompleted = step > item.num;
@@ -601,10 +623,10 @@ export default function App() {
                     onClick={() => setStep(item.num)}
                     className={`transition-all duration-200 cursor-pointer text-left uppercase flex items-center gap-2 pb-1 ${
                       isActive
-                        ? "text-[#d4af37] border-b-2 border-[#d4af37] font-bold"
+                        ? "text-app-gold border-b-2 border-app-gold font-bold"
                         : isCompleted
-                        ? "text-white/80 hover:text-white border-b-2 border-transparent"
-                        : "text-white/30 hover:text-white/50 border-b-2 border-transparent"
+                        ? "text-app-main hover:text-app-main border-b-2 border-transparent"
+                        : "text-app-dim hover:text-app-muted border-b-2 border-transparent"
                     }`}
                   >
                     <span className="font-mono text-[9px] opacity-60">0{item.num}</span>
@@ -618,20 +640,20 @@ export default function App() {
 
         {/* Validation Execution Stages Screener */}
         {isSubmitting && (
-          <div id="submitting-stages-screener" className="bg-[#0f0f12] border border-white/10 rounded-xl p-16 sm:p-24 space-y-12 animate-fade-in text-center my-6 max-w-4xl w-full mx-auto shadow-2xl min-h-[500px] flex flex-col justify-center">
+          <div id="submitting-stages-screener" className="bg-app-panel border border-app-border rounded-xl p-16 sm:p-24 space-y-12 animate-fade-in text-center my-6 max-w-4xl w-full mx-auto shadow-2xl min-h-[500px] flex flex-col justify-center">
             <div className="flex flex-col items-center justify-center space-y-6">
-              <Loader2 className="w-16 h-16 text-[#d4af37] animate-spin" />
-              <h2 className="text-3xl font-serif font-light text-white uppercase tracking-wider">
+              <Loader2 className="w-16 h-16 text-app-gold animate-spin" />
+              <h2 className="text-3xl font-serif font-light text-app-main uppercase tracking-wider">
                 Simulating Scenario Risk Drivers
               </h2>
-              <p className="text-sm text-white/50 max-w-lg mx-auto leading-relaxed">
+              <p className="text-sm text-app-muted max-w-lg mx-auto leading-relaxed">
                 Please wait while we stress-test your financials against target regional demand, compute the psychological risk curve, and run deep AI scenario benchmarks. This might take 30 to 60 seconds.
               </p>
             </div>
 
             {/* Stepper tracking columns */}
-            <div className="max-w-md mx-auto space-y-3 bg-white/[0.02] p-6 rounded-lg border border-white/5 text-left">
-              <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] pl-1">
+            <div className="max-w-md mx-auto space-y-3 bg-app-subtle p-6 rounded-lg border border-app-border-light text-left">
+              <h3 className="text-[10px] font-bold text-app-dim uppercase tracking-[0.2em] pl-1">
                 Validators pipeline:
               </h3>
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
@@ -644,19 +666,19 @@ export default function App() {
                       ref={isCurrent ? activeStageRef : undefined}
                       className={`flex items-center justify-between p-2 py-1.5 rounded text-xs leading-none transition-colors duration-150 ${
                         isCurrent
-                          ? "bg-white/5 text-white border border-white/10 font-semibold"
+                          ? "bg-app-subtle text-app-main border border-app-border font-semibold"
                           : isFinished
-                          ? "text-emerald-400 font-medium"
-                          : "text-white/30 opacity-60"
+                          ? "text-app-success font-medium"
+                          : "text-app-dim opacity-60"
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         {isFinished ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <Check className="w-3.5 h-3.5 text-app-success" />
                         ) : isCurrent ? (
-                          <Loader2 className="w-3.5 h-3.5 text-[#d4af37] animate-spin" />
+                          <Loader2 className="w-3.5 h-3.5 text-app-gold animate-spin" />
                         ) : (
-                          <div className="h-1.5 w-1.5 bg-white/20 rounded-full ml-1"></div>
+                          <div className="h-1.5 w-1.5 bg-app-border rounded-full ml-1"></div>
                         )}
                         <span>{item.label}</span>
                       </div>
@@ -670,7 +692,7 @@ export default function App() {
             </div>
 
             {/* Live stream logs feed ticker */}
-            <div className="text-center font-mono text-[10px] text-[#d4af37] bg-[#d4af37]/10 py-2.5 px-3 rounded-md max-w-sm mx-auto border border-[#d4af37]/20 uppercase tracking-wider">
+            <div className="text-center font-mono text-[10px] text-app-gold bg-app-gold/10 py-2.5 px-3 rounded-md max-w-sm mx-auto border border-app-gold/20 uppercase tracking-wider">
               {sseMessages.length > 0
                 ? `⚡ ${sseMessages[sseMessages.length - 1].message}`
                 : "🌐 Tuning live satellite intelligence routers..."}
@@ -684,9 +706,9 @@ export default function App() {
             {showLanding ? (
               <LandingPage onStart={() => { setShowLanding(false); setStep(1); }} />
             ) : (
-              <div className="bg-[#0f0f12] border border-white/10 rounded-xl p-6 sm:p-8 md:p-10 shadow-xl hover:border-white/15 transition-colors duration-300">
+              <div className="bg-app-panel border border-app-border rounded-xl p-6 sm:p-8 md:p-10 shadow-xl hover:border-app-border-strong transition-colors duration-300">
                 {errorDetails && (
-                  <div className="bg-red-950/25 text-red-200 p-4 rounded-lg border border-red-800/40 mb-6 flex flex-col gap-2.5 text-sm">
+                  <div className="bg-red-950/25 text-app-error-muted p-4 rounded-lg border border-red-800/40 mb-6 flex flex-col gap-2.5 text-sm">
                     <div className="flex gap-3">
                       <div className="font-bold flex-shrink-0 mt-0.5">⚠️ Error:</div>
                       <div className="leading-relaxed">
@@ -694,7 +716,7 @@ export default function App() {
                       </div>
                     </div>
                     {(errorDetails.code || errorDetails.requestId) && (
-                      <div className="mt-1 pl-8 border-t border-red-950/10 pt-2 font-mono text-[10px] text-red-300/60 flex flex-wrap gap-x-4 gap-y-1">
+                      <div className="mt-1 pl-8 border-t border-red-950/10 pt-2 font-mono text-[10px] text-app-error-muted/60 flex flex-wrap gap-x-4 gap-y-1">
                         {errorDetails.code && (
                           <span>ERROR_CODE: {errorDetails.code}</span>
                         )}
@@ -707,7 +729,7 @@ export default function App() {
                       <button
                         type="button"
                         onClick={handleValidateSubmit}
-                        className="underline font-semibold text-[#d4af37] hover:text-[#c29e2f] text-xs transition-colors cursor-pointer block"
+                        className="underline font-semibold text-app-gold hover:brightness-90 text-xs transition-colors cursor-pointer block"
                       >
                         Retry Validation Process
                       </button>
@@ -809,7 +831,7 @@ export default function App() {
       </main>
 
       {/* Humble Footer */}
-      <footer className="py-8 border-t border-white/5 text-center text-[10px] tracking-widest uppercase text-white/30 bg-[#0a0a0c] print:hidden max-w-4xl mx-auto w-full">
+      <footer className="py-8 border-t border-app-border-light text-center text-[10px] tracking-widest uppercase text-app-dim bg-app-base print:hidden max-w-4xl mx-auto w-full">
         <p className="max-w-[600px] mx-auto px-4 leading-relaxed">
           Plan B Validator is an analytical framework and should not be considered financial or professional career advice. Validate all market data independently.
         </p>

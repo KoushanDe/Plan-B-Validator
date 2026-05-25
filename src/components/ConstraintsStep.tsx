@@ -49,12 +49,12 @@ export default function ConstraintsStep({
 
   return (
     <form id="constraints-step-form" onSubmit={handleSubmit} className="space-y-6">
-      <div className="border-b border-white/10 pb-4">
-        <h2 className="text-xl font-serif text-white flex items-center gap-2.5 font-semibold">
-          <ShieldCheck className="w-5 h-5 text-[#d4af37]" />
+      <div className="border-b border-app-border pb-4">
+        <h2 className="text-xl font-serif text-app-main flex items-center gap-2.5 font-semibold">
+          <ShieldCheck className="w-5 h-5 text-app-gold" />
           <span>Boundaries & Constraints</span>
         </h2>
-        <p className="text-xs text-white/40 mt-1 uppercase tracking-wider">
+        <p className="text-xs text-app-dim mt-1 uppercase tracking-wider">
           Define your risk thresholds, criteria for failure or pivot, and family constraints down the line.
         </p>
       </div>
@@ -62,10 +62,10 @@ export default function ConstraintsStep({
       <div className="space-y-5">
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label htmlFor="successDefinition" className="block text-xs uppercase tracking-widest text-white/40">
+            <label htmlFor="successDefinition" className="block text-xs uppercase tracking-widest text-app-dim">
               How do you define success for Plan B? *
             </label>
-            <span className={`text-[10px] font-mono ${successLen > 1000 ? "text-rose-400 font-bold" : "text-white/35"}`}>
+            <span className={`text-[10px] font-mono ${successLen > 1000 ? "text-app-error font-bold" : "text-app-main/35"}`}>
               {successLen}/1000
             </span>
           </div>
@@ -77,16 +77,16 @@ export default function ConstraintsStep({
             value={data.successDefinition || ""}
             onChange={(e) => handleChange("successDefinition", e.target.value)}
             placeholder="e.g., Making ₹80k/month by month 6, launching the beta roaster with 10 recurring shops"
-            className="w-full px-4 py-3 rounded bg-white/[0.03] border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-sans"
+            className="w-full px-4 py-3 rounded bg-app-input border border-app-border text-app-main placeholder-white/20 focus:outline-none focus:border-app-gold focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-sans"
           />
         </div>
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label htmlFor="biggestFear" className="block text-xs uppercase tracking-widest text-white/40">
+            <label htmlFor="biggestFear" className="block text-xs uppercase tracking-widest text-app-dim">
               What is your biggest fear or failure scenario? *
             </label>
-            <span className={`text-[10px] font-mono ${fearLen > 1000 ? "text-rose-400 font-bold" : "text-white/35"}`}>
+            <span className={`text-[10px] font-mono ${fearLen > 1000 ? "text-app-error font-bold" : "text-app-main/35"}`}>
               {fearLen}/1000
             </span>
           </div>
@@ -98,16 +98,16 @@ export default function ConstraintsStep({
             value={data.biggestFear || ""}
             onChange={(e) => handleChange("biggestFear", e.target.value)}
             placeholder="e.g., Depleting all my liquid cash reserve, having to restart job hunting in a panic"
-            className="w-full px-4 py-3 rounded bg-white/[0.03] border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-sans"
+            className="w-full px-4 py-3 rounded bg-app-input border border-app-border text-app-main placeholder-white/20 focus:outline-none focus:border-app-gold focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-sans"
           />
         </div>
 
         <div>
           <div className="flex justify-between items-center mb-2">
-            <label htmlFor="acceptableDownside" className="block text-xs uppercase tracking-widest text-white/40 font-semibold text-white/80">
+            <label htmlFor="acceptableDownside" className="block text-xs uppercase tracking-widest text-app-dim font-semibold text-app-main">
               What is your acceptable downside / recovery plan? *
             </label>
-            <span className={`text-[10px] font-mono ${downsideLen > 1000 ? "text-rose-400 font-bold" : "text-white/35"}`}>
+            <span className={`text-[10px] font-mono ${downsideLen > 1000 ? "text-app-error font-bold" : "text-app-main/35"}`}>
               {downsideLen}/1000
             </span>
           </div>
@@ -119,17 +119,17 @@ export default function ConstraintsStep({
             value={data.acceptableDownside || ""}
             onChange={(e) => handleChange("acceptableDownside", e.target.value)}
             placeholder="e.g., Re-apply for corporate roles, or establish consulting project on weekends"
-            className="w-full px-4 py-3 rounded bg-white/[0.03] border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-sans"
+            className="w-full px-4 py-3 rounded bg-app-input border border-app-border text-app-main placeholder-white/20 focus:outline-none focus:border-app-gold focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-sans"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
-            <label htmlFor="minimumAcceptableSalary" className="block text-xs uppercase tracking-widest text-white/40 mb-2 font-semibold text-white/80">
+            <label htmlFor="minimumAcceptableSalary" className="block text-xs uppercase tracking-widest text-app-dim mb-2 font-semibold text-app-main">
               Minimum acceptable monthly salary / cash flow *
             </label>
             <div className="relative rounded">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-white/30 text-xs font-mono">₹</span>
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-app-dim text-xs font-mono">₹</span>
               <input
                 id="minimumAcceptableSalary"
                 type="number"
@@ -140,13 +140,13 @@ export default function ConstraintsStep({
                 value={data.minimumAcceptableSalary === undefined || data.minimumAcceptableSalary === null ? "" : data.minimumAcceptableSalary}
                 onChange={(e) => handleChange("minimumAcceptableSalary", parseFloat(e.target.value) || 0)}
                 placeholder="e.g., 50,000"
-                className="w-full pl-8 pr-4 py-3 rounded bg-white/[0.03] border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-mono"
+                className="w-full pl-8 pr-4 py-3 rounded bg-app-input border border-app-border text-app-main placeholder-white/20 focus:outline-none focus:border-app-gold focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-mono"
               />
             </div>
-            <p className="text-[10px] text-white/40 mt-1 font-mono tracking-widest">
+            <p className="text-[10px] text-app-dim mt-1 font-mono tracking-widest">
               {formatINR(data.minimumAcceptableSalary)}
               {data.minimumAcceptableSalary > 0 && (
-                <span className="text-[#d4af37] ml-2 font-sans font-medium uppercase text-[10px]">
+                <span className="text-app-gold ml-2 font-sans font-medium uppercase text-[10px]">
                   ({sayMoneyInIndianWay(data.minimumAcceptableSalary)})
                 </span>
               )}
@@ -154,7 +154,7 @@ export default function ConstraintsStep({
           </div>
 
           <div>
-            <label htmlFor="acceptableMonthsWithoutIncome" className="block text-xs uppercase tracking-widest text-white/40 mb-2">
+            <label htmlFor="acceptableMonthsWithoutIncome" className="block text-xs uppercase tracking-widest text-app-dim mb-2">
               Max Months comfortable with NO income *
             </label>
             <input
@@ -171,17 +171,17 @@ export default function ConstraintsStep({
                 handleChange("acceptableMonthsWithoutIncome", isNaN(parsed) ? undefined : parsed);
               }}
               placeholder="e.g., 6"
-              className="w-full px-4 py-3 rounded bg-white/[0.03] border border-white/10 text-white placeholder-white/20 focus:outline-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-mono"
+              className="w-full px-4 py-3 rounded bg-app-input border border-app-border text-app-main placeholder-white/20 focus:outline-none focus:border-app-gold focus:ring-1 focus:ring-[#d4af37]/30 transition-all text-sm font-mono"
             />
           </div>
         </div>
 
         {/* Rating for Family Pressure Level 1-5 */}
-        <div className="bg-[#0d0d10] border border-white/5 rounded-lg p-5 mt-2">
-          <label className="block text-sm font-serif text-white mb-1 font-semibold">
+        <div className="bg-app-panel border border-app-border-light rounded-lg p-5 mt-2">
+          <label className="block text-sm font-serif text-app-main mb-1 font-semibold">
             External / Family Pressure level (1 to 5) *
           </label>
-          <span className="text-xs text-white/40 uppercase tracking-wide block mb-4">
+          <span className="text-xs text-app-dim uppercase tracking-wide block mb-4">
             How much pressure or pushback are you facing from parents, spouse, or dependents regarding this venture?
           </span>
 
@@ -196,8 +196,8 @@ export default function ConstraintsStep({
                   onClick={() => handleChange("familyPressureLevel", level)}
                   className={`flex-1 py-3 text-center rounded transition-all cursor-pointer ${
                     data.familyPressureLevel === level
-                      ? "bg-[#d4af37] text-black font-bold shadow-md"
-                      : "bg-white/[0.02] border border-white/10 text-white/70 hover:bg-white/5"
+                      ? "bg-app-gold text-app-base font-bold shadow-md"
+                      : "bg-app-subtle border border-app-border text-app-muted hover:bg-app-subtle"
                   }`}
                 >
                   <div className="text-lg font-bold font-mono">{level}</div>
@@ -208,7 +208,7 @@ export default function ConstraintsStep({
               );
             })}
           </div>
-          <div className="text-xs text-[#d4af37] font-medium mt-3 text-center">
+          <div className="text-xs text-app-gold font-medium mt-3 text-center">
             Selected Support/Friction Level: {["None / Full Support", "Mild Concern", "Neutral Profile", "Moderate Pressure", "Severe Pushback"][data.familyPressureLevel - 1]}
           </div>
         </div>
@@ -223,12 +223,12 @@ export default function ConstraintsStep({
         </div>
       )}
 
-      <div className="flex justify-between pt-4 border-t border-white/10">
+      <div className="flex justify-between pt-4 border-t border-app-border">
         <button
           id="constraints-prev-btn"
           type="button"
           onClick={onPrev}
-          className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest border border-white/10 transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
+          className="px-6 py-2.5 bg-app-subtle hover:bg-app-subtle-hover text-app-main text-xs font-bold uppercase tracking-widest border border-app-border transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -237,7 +237,7 @@ export default function ConstraintsStep({
         <button
           id="constraints-next-btn"
           type="submit"
-          className="px-6 py-2.5 bg-white hover:bg-white/90 text-black text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
+          className="px-6 py-2.5 bg-app-main hover:opacity-90 text-app-base text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-2 rounded-sm cursor-pointer"
         >
           <span>Continue to Psychology</span>
           <ArrowRight className="w-4 h-4" />

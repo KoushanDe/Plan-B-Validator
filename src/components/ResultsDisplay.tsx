@@ -7,7 +7,7 @@ import {
   BookOpen,
   ArrowRight,
   Briefcase,
-  AlertOctagon,
+  AlertOctagon, Brain,
   Printer,
   ChevronRight,
   HelpCircle,
@@ -1192,8 +1192,10 @@ export default function ResultsDisplay({ results, onReset, onAnalyzeAnother }: R
           </h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <div className="bg-app-subtle print:bg-gray-100 border border-app-border-light p-4 rounded">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-app-dim print:text-black/50 block mb-1 font-mono">Psychology & Trait Metrics</span>
+            <div className="bg-app-gold/10 print:bg-yellow-50 border border-app-gold/30 p-4 rounded">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-app-gold print:text-yellow-700 block mb-1 font-mono flex items-center gap-1">
+                <Brain className="w-3.5 h-3.5" /> Psychology & Trait Metrics
+              </span>
               <p className="text-xs text-app-main print:text-black leading-relaxed font-sans mt-2">
                 {results.personalitySummary || results.psychologyAssessment?.summary || "Evaluation details pending profile parameters mapping."}
               </p>

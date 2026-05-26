@@ -169,12 +169,12 @@ export default function ResumeStep({
               type="button"
               id="enable-research-toggle"
               onClick={() => onChangeResearch({ enableResearch: !researchOptions.enableResearch })}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border border-app-border-light transition-colors duration-200 ease-in-out focus:outline-none ${
-                researchOptions.enableResearch ? "bg-app-gold" : "bg-app-subtle-hover"
+              className={`relative inline-flex h-6 w-11 items-center flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none ${
+                researchOptions.enableResearch ? "bg-app-gold border-app-gold" : "bg-app-subtle-hover border-app-subtle-hover"
               }`}
             >
               <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-black ring-0 transition duration-200 ease-in-out ${
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-black shadow ring-0 transition duration-200 ease-in-out ${
                   researchOptions.enableResearch ? "translate-x-5" : "translate-x-0"
                 }`}
               />

@@ -76,7 +76,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           </button>
           
           <div className="text-[11px] font-mono tracking-widest text-app-dim uppercase">
-            ESTIMATED RUN TIME: 4-5 MIN
+            Takes about 4-5 minutes
           </div>
         </div>
       </div>

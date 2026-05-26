@@ -27,20 +27,33 @@ export default function FinancialsStep({ data, iWillQuitMyJob, onChange, onNext,
   // Safe client-side mathematical fallback
   const calculateLocalRunway = () => {
     const totalOutflow = (data.monthlyExpenses || 0) + (data.debtObligations || 0);
-    if (!totalOutflow || !data.liquidSavings) return 0;
+    const netBurn = iWillQuitMyJob ? totalOutflow : totalOutflow - (data.monthlyIncome || 0);
+    if (!data.liquidSavings) return 0;
+    if (netBurn <= 0) return 999;
+    
     // Survival formula matching Rule 5 exactly
-    const baseRunway = data.liquidSavings / totalOutflow;
+    const baseRunway = data.liquidSavings / netBurn;
     return parseFloat(baseRunway.toFixed(1));
   };
 
   // Debounced API runway calculation
   useEffect(() => {
     const totalOutflow = (data.monthlyExpenses || 0) + (data.debtObligations || 0);
-    if (!data.liquidSavings || totalOutflow <= 0) {
+    const netBurn = iWillQuitMyJob ? totalOutflow : totalOutflow - (data.monthlyIncome || 0);
+    
+    if (!data.liquidSavings) {
       setLiveRunway(0);
       setRiskClassification(null);
       setNetBurn(null);
       setRunwayMode(null);
+      return;
+    }
+    
+    if (netBurn <= 0) {
+      setLiveRunway(999);
+      setRiskClassification("STABLE");
+      setNetBurn(0);
+      setRunwayMode("SIDE_HUSTLE");
       return;
     }
 
@@ -304,7 +317,7 @@ export default function FinancialsStep({ data, iWillQuitMyJob, onChange, onNext,
                 {loadingRunway ? (
                   <span className="h-6 w-6 border-2 border-current border-t-transparent rounded-full animate-spin"></span>
                 ) : (
-                  runwayValue > 999 ? "999+" : runwayValue
+                  runwayValue >= 999 ? "∞" : runwayValue
                 )}
                 <span className="text-xs font-normal text-app-muted italic font-sans ml-1">Months</span>
               </div>

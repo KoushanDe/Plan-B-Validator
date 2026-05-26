@@ -71,7 +71,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
             onClick={onStart}
             className="w-full sm:w-auto px-8 py-4 rounded bg-app-gold hover:brightness-90 text-app-base font-semibold text-sm tracking-widest uppercase shadow-[0_0_20px_rgba(212,175,55,0.15)] flex items-center justify-center gap-2.5 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
           >
-            <span>Initiate Stress Test</span>
+            <span>Start Analysis</span>
             <ArrowRight className="w-4 h-4 text-app-base" />
           </button>
           

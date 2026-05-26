@@ -847,10 +847,13 @@ export default function App() {
                   <ResultsDisplay
                     results={validationResult}
                     onReset={() => {
+                      handleClearDraft();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    onAnalyzeAnother={() => {
                       setStep(1);
-                      setShowLanding(true);
                       setValidationResult(null);
-                      setResumeFile(null);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   />
                 )}

@@ -87,7 +87,13 @@ export default function ReviewStep({
 
   // Computed runway
   const totalOutflow = (financials.monthlyExpenses || 0) + (financials.debtObligations || 0);
-  const rawRunway = totalOutflow > 0 && financials.liquidSavings ? (financials.liquidSavings / totalOutflow).toFixed(1) : "0";
+  const netBurn = planB.iWillQuitMyJob ? totalOutflow : totalOutflow - (financials.monthlyIncome || 0);
+  let rawRunway = "0";
+  if (netBurn > 0 && financials.liquidSavings) {
+    rawRunway = (financials.liquidSavings / netBurn).toFixed(1);
+  } else if (netBurn <= 0 && financials.liquidSavings) {
+    rawRunway = "∞";
+  }
 
   return (
     <div id="review-step-container" className="space-y-8">

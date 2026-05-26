@@ -27,6 +27,7 @@ import {
 interface ResultsDisplayProps {
   results: ValidationResults;
   onReset: () => void;
+  onAnalyzeAnother: () => void;
 }
 
 // Format currency depending on country
@@ -200,7 +201,7 @@ function renderMarketValueAssessment(assessment: any) {
   return <span className="text-app-main">{String(assessment)}</span>;
 }
 
-export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps) {
+export default function ResultsDisplay({ results, onReset, onAnalyzeAnother }: ResultsDisplayProps) {
   const [activeTab, setActiveTab] = useState<"summary" | "financials" | "market" | "profile">("summary");
 
   // Custom Verdict configurations
@@ -1296,7 +1297,15 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
         </p>
       </div>
 
-      <div className="flex justify-center print:hidden border-t border-app-border pt-5">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 print:hidden border-t border-app-border pt-5">
+        <button
+          id="btn-analyze-another"
+          type="button"
+          onClick={onAnalyzeAnother}
+          className="px-6 py-2.5 bg-app-main hover:bg-app-main/90 text-app-base text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer rounded-sm"
+        >
+          Analyze Another Scenario
+        </button>
         <button
           id="btn-return-start"
           type="button"
